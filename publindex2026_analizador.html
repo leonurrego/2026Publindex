@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analizador Publindex 2026 — Fase III</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde:       #0F6E56;
+    --verde-md:    #1D9E75;
+    --verde-lt:    #E1F5EE;
+    --verde-dark:  #085041;
+    --gris-bg:     #F4F2EC;
+    --gris-borde:  #D8D5CA;
+    --gris-text:   #5A5850;
+    --amber:       #854F0B;
+    --amber-lt:    #FAEEDA;
+    --azul:        #185FA5;
+    --azul-lt:     #E6F1FB;
+    --rojo:        #A32D2D;
+    --rojo-lt:     #FCEBEB;
+    --negro:       #1E1E1C;
+    --blanco:      #FAFAF7;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--gris-bg);
+    color: var(--negro);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--verde-dark);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  header .logo {
+    font-family: 'DM Serif Display', serif;
+    color: #fff;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+  }
+  header .badge {
+    background: var(--verde-md);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  .hero {
+    margin-bottom: 2.5rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--verde-dark);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    color: var(--gris-text);
+    max-width: 580px;
+    line-height: 1.6;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--verde-dark);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title span.num {
+    background: var(--verde);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gris-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+  input[type="text"], input[type="number"], input[type="url"] {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--gris-borde);
+    border-radius: 8px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.95rem;
+    background: var(--blanco);
+    color: var(--negro);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus { border-color: var(--verde-md); }
+  input[type="number"] { max-width: 140px; font-family: 'DM Mono', monospace; font-size: 1.1rem; }
+
+  .field { margin-bottom: 1.1rem; }
+  .field-hint {
+    font-size: 0.78rem;
+    color: var(--gris-text);
+    margin-top: 0.3rem;
+    line-height: 1.5;
+  }
+
+  /* ── SIR CHECKLIST ── */
+  .sir-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .sir-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--gris-borde);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+  .sir-item:hover { border-color: var(--verde-md); background: var(--verde-lt); }
+  .sir-item.selected { border-color: var(--verde); background: var(--verde-lt); }
+  .sir-item input[type="checkbox"] { display: none; }
+  .sir-check {
+    width: 16px; height: 16px;
+    border: 2px solid var(--gris-borde);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 10px; color: #fff;
+  }
+  .sir-item.selected .sir-check {
+    background: var(--verde);
+    border-color: var(--verde);
+  }
+  .sir-cat {
+    font-size: 0.68rem;
+    color: var(--gris-text);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .sir-section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gris-text);
+    margin: 1rem 0 0.4rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--gris-borde);
+  }
+
+  /* ── URL INPUT ── */
+  .url-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .btn-fetch {
+    white-space: nowrap;
+    padding: 0.7rem 1.1rem;
+    border: 1.5px solid var(--verde);
+    background: transparent;
+    color: var(--verde);
+    border-radius: 8px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-fetch:hover { background: var(--verde); color: #fff; }
+  .btn-fetch:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── ANALIZAR BTN ── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: var(--verde);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 0.5rem;
+  }
+  .btn-primary:hover { background: var(--verde-dark); }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  @media(max-width: 600px){ .metrics-row{ grid-template-columns: repeat(2,1fr); } }
+
+  .metric {
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .metric .m-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .metric .m-lbl {
+    font-size: 0.72rem;
+    color: var(--gris-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* categoria badge grande */
+  .cat-result {
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .cat-letter {
+    font-family: 'DM Serif Display', serif;
+    font-size: 4rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .cat-desc h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .cat-desc p { font-size: 0.88rem; line-height: 1.55; }
+
+  /* SIR resultado tabla */
+  table.sir-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+  table.sir-table th {
+    background: var(--verde);
+    color: #fff;
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  table.sir-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--gris-borde);
+    vertical-align: middle;
+  }
+  table.sir-table tr:nth-child(even) td { background: var(--gris-bg); }
+  .pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 100px;
+  }
+  .pill-ok  { background: var(--verde-lt); color: var(--verde); }
+  .pill-ibc { background: var(--azul-lt);  color: var(--azul);  }
+  .pill-no  { background: var(--rojo-lt);  color: var(--rojo);  }
+
+  /* ICM bar */
+  .icm-bar-wrap {
+    background: var(--gris-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 14px;
+    margin: 0.4rem 0;
+  }
+  .icm-bar {
+    height: 100%;
+    background: var(--verde-md);
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(.23,1,.32,1);
+  }
+
+  .formula-box {
+    background: var(--verde-lt);
+    border: 1px solid var(--verde-md);
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--verde-dark);
+    margin: 0.75rem 0;
+  }
+
+  .warn-box {
+    background: var(--amber-lt);
+    border: 1px solid #dba462;
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.85rem;
+    color: var(--amber);
+    line-height: 1.55;
+    margin-top: 0.75rem;
+  }
+  .warn-box strong { display: block; margin-bottom: 0.2rem; }
+
+  .info-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--gris-borde);
+    font-size: 0.875rem;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { font-weight: 600; min-width: 160px; color: var(--gris-text); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .info-val { flex: 1; }
+
+  /* reset btn */
+  .btn-reset {
+    background: none;
+    border: 1.5px solid var(--gris-borde);
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--gris-text);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    margin-top: 1rem;
+  }
+  .btn-reset:hover { border-color: var(--negro); color: var(--negro); }
+
+  .spinner { display: inline-block; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.75rem;
+    color: var(--gris-text);
+    border-top: 1px solid var(--gris-borde);
+    margin-top: 2rem;
+  }
+
+  /* ESCI warning */
+  .esci-notice {
+    background: var(--azul-lt);
+    border: 1px solid #7baed8;
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.83rem;
+    color: var(--azul);
+    margin-top: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* URL status */
+  .url-status {
+    font-size: 0.78rem;
+    margin-top: 0.35rem;
+    min-height: 1.1rem;
+  }
+  .url-status.ok   { color: var(--verde); }
+  .url-status.err  { color: var(--rojo); }
+  .url-status.load { color: var(--gris-text); }
+
+  .detected-sires {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--gris-bg);
+    border-radius: 8px;
+    border: 1px solid var(--gris-borde);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .detected-sires strong { display: block; margin-bottom: 0.3rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gris-text); }
+  .detected-sires .chip {
+    display: inline-block;
+    background: var(--verde-lt);
+    color: var(--verde);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.78rem;
+    margin: 2px 3px 2px 0;
+    border: 1px solid var(--verde-md);
+  }
+  .detected-sires .chip-ibc {
+    background: var(--azul-lt);
+    color: var(--azul);
+    border-color: #7baed8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Publindex Analyzer</span>
+  <span class="badge">Convocatoria 977 · 2026</span>
+</header>
+
+<div class="wrapper">
+
+  <div class="hero">
+    <h1>Analizador Fase III<br><em>Publindex 2026</em></h1>
+    <p>Ingresa el h5 calculado con Publish or Perish (PoP) y la URL donde la revista reporta sus índices de indexación. El sistema verifica los SIRes contra el Anexo C oficial y calcula el ICM.</p>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-section">
+
+    <!-- PASO 1: datos básicos -->
+    <div class="card">
+      <div class="card-title"><span class="num">1</span> Datos de la revista</div>
+
+      <div class="field">
+        <label>Nombre de la revista</label>
+        <input type="text" id="rev-nombre" placeholder="Ej. Revista Colombiana de Educación">
+      </div>
+      <div class="field">
+        <label>ISSN (impreso)</label>
+        <input type="text" id="rev-issn" placeholder="Ej. 0120-677X" style="max-width:200px">
+      </div>
+      <div class="field">
+        <label>Campo de Conocimiento Minciencias</label>
+        <select id="rev-campo" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid var(--gris-borde);border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:0.95rem;background:var(--blanco);color:var(--negro);outline:none;">
+          <option value="">— Seleccionar campo —</option>
+          <option value="1">1. Ciencias Agrícolas y Veterinarias</option>
+          <option value="2">2. Ciencias Biológicas</option>
+          <option value="3">3. Ciencias de la Tierra y Medioambientales</option>
+          <option value="4">4. Ciencias Exactas</option>
+          <option value="5">5. Ingenierías</option>
+          <option value="6">6. Artes</option>
+          <option value="7">7. Humanidades</option>
+          <option value="8">8. Ciencias Económicas, Administrativas y Contables</option>
+          <option value="9">9. Ciencias Sociales</option>
+          <option value="10">10. Derecho</option>
+          <option value="11" selected>11. Educación</option>
+          <option value="12">12. Psicología</option>
+          <option value="13">13. Medicina Clínica</option>
+          <option value="14">14. Medicina Básica</option>
+          <option value="15">15. Ciencias de la Salud</option>
+          <option value="16">16. Multidisciplinar</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PASO 2: h5 -->
+    <div class="card">
+      <div class="card-title"><span class="num">2</span> Índice H5 (Publish or Perish)</div>
+      <div class="field">
+        <label>Valor H5 calculado</label>
+        <input type="number" id="h5-val" min="0" max="200" value="" placeholder="0">
+        <p class="field-hint">Ventana: 1 enero 2020 – 31 diciembre 2024 · Fuente: Google Scholar vía PoP · Cadena de búsqueda: source:"nombre revista" "ISSN"</p>
+      </div>
+      <div class="field">
+        <label>Fecha de consulta PoP</label>
+        <input type="text" id="pop-fecha" placeholder="Ej. 8 de abril de 2026" style="max-width:280px">
+      </div>
+    </div>
+
+    <!-- PASO 3: URL indexación -->
+    <div class="card">
+      <div class="card-title"><span class="num">3</span> Página de indexación de la revista</div>
+      <div class="field">
+        <label>URL de la página de indexación</label>
+        <div class="url-row">
+          <input type="url" id="sir-url" placeholder="https://revistas.ejemplo.edu.co/revista/indexacion">
+          <button class="btn-fetch" id="btn-fetch-url" onclick="fetchSirUrl()">
+            Verificar URL
+          </button>
+        </div>
+        <div class="url-status" id="url-status"></div>
+        <p class="field-hint">Ingresa la URL donde la revista publica su listado de índices y bases de datos. Se intentará detectar automáticamente los SIRes mencionados.</p>
+        <div class="detected-sires" id="detected-box" style="display:none">
+          <strong>SIRes detectados en la URL</strong>
+          <div id="detected-chips"></div>
+          <p style="font-size:0.78rem;color:var(--gris-text);margin-top:0.4rem;">Los SIRes detectados se han marcado automáticamente. Puedes ajustar la selección manualmente abajo.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4: SIRes manual -->
+    <div class="card">
+      <div class="card-title"><span class="num">4</span> SIRes reconocidos — Anexo C oficial</div>
+      <p style="font-size:0.85rem;color:var(--gris-text);margin-bottom:1rem;line-height:1.5;">
+        Marca los SIRes en los que está incluida la revista según el <strong>Anexo C de la Convocatoria 977</strong>. Solo los marcados serán computados. El máximo es 100% con 4 o más SIRes.
+      </p>
+
+      <div class="sir-section-label">⚡ Índices Bibliográficos de Citaciones (IBC) — clasificación directa por Tabla 3</div>
+      <div class="sir-grid" id="grid-ibc"></div>
+
+      <div class="sir-section-label">📚 Índices Bibliográficos</div>
+      <div class="sir-grid" id="grid-ib"></div>
+
+      <div class="sir-section-label">🗂 Bases Bibliográficas con Comité de Selección</div>
+      <div class="sir-grid" id="grid-bb"></div>
+    </div>
+
+    <button class="btn-primary" onclick="analizar()">Calcular clasificación →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <div class="card">
+      <div class="card-title"><span class="num">✓</span> Resultado — Fase III</div>
+
+      <!-- métricas -->
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="m-val" id="r-h5" style="color:var(--verde-dark)">—</div>
+          <div class="m-lbl">H5 (PoP)</div>
+        </div>
+        <div class="metric">
+          <div class="m-val" id="r-sires-n" style="color:var(--azul)">—</div>
+          <div class="m-lbl">SIRes válidos ICM</div>
+        </div>
+        <div class="metric">
+          <div class="m-val" id="r-sires-pct" style="color:var(--amber)">—</div>
+          <div class="m-lbl">Puntaje SIRes</div>
+        </div>
+        <div class="metric">
+          <div class="m-val" id="r-ibc-n" style="color:var(--rojo)">—</div>
+          <div class="m-lbl">IBC seleccionados</div>
+        </div>
+      </div>
+
+      <!-- IBC alert -->
+      <div id="ibc-alert" class="esci-notice" style="display:none">
+        <strong>⚡ Atención — IBC detectados:</strong> La revista está marcada en uno o más Índices Bibliográficos de Citaciones (JCR, SJR, Scopus, ESCI, SCI, SSCI, AHCI, SciELO CI). Si tiene cuartil vigente para 2024, la clasificación se realiza <strong>directamente por Tabla 3</strong> (no por ICM). Verificar en SJR / JCR / WoS antes de proceder.
+      </div>
+
+      <!-- categoría -->
+      <div class="cat-result" id="cat-block">
+        <div class="cat-letter" id="cat-letter">—</div>
+        <div class="cat-desc">
+          <h3 id="cat-name">—</h3>
+          <p id="cat-explain">—</p>
+        </div>
+      </div>
+
+      <!-- ICM visual -->
+      <div id="icm-section">
+        <div class="formula-box" id="icm-formula">ICM = (2/3 × H5_norm) + (1/3 × SIRes_norm)</div>
+        <p style="font-size:0.82rem;color:var(--gris-text);margin-bottom:0.5rem;">Componente SIRes (34% del ICM)</p>
+        <div class="icm-bar-wrap"><div class="icm-bar" id="icm-bar" style="width:0%"></div></div>
+        <p style="font-size:0.75rem;color:var(--gris-text);text-align:right;margin-top:2px" id="icm-bar-lbl">0%</p>
+      </div>
+
+      <!-- tabla SIRes -->
+      <div style="margin-top:1.25rem">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--gris-text);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Detalle de SIRes seleccionados</div>
+        <table class="sir-table">
+          <thead><tr><th>#</th><th>Sistema</th><th>Tipo</th><th>Estado</th></tr></thead>
+          <tbody id="sir-result-body"></tbody>
+        </table>
+      </div>
+
+      <!-- advertencias -->
+      <div id="warns-section"></div>
+
+      <div style="margin-top:1.25rem">
+        <div class="info-row"><span class="info-label">Revista</span><span class="info-val" id="r-nombre">—</span></div>
+        <div class="info-row"><span class="info-label">ISSN</span><span class="info-val" id="r-issn">—</span></div>
+        <div class="info-row"><span class="info-label">Campo Minciencias</span><span class="info-val" id="r-campo">—</span></div>
+        <div class="info-row"><span class="info-label">Fecha consulta PoP</span><span class="info-val" id="r-fecha">—</span></div>
+        <div class="info-row"><span class="info-label">URL indexación</span><span class="info-val" id="r-url" style="word-break:break-all;font-size:0.8rem">—</span></div>
+      </div>
+
+      <button class="btn-reset" onclick="resetForm()">← Nueva consulta</button>
+    </div>
+
+  </div><!-- /results -->
+
+</div><!-- /wrapper -->
+
+<footer>
+  Analizador Fase III · Publindex Convocatoria 977 de 2026 · Ministerio de Ciencia, Tecnología e Innovación de Colombia<br>
+  Herramienta de simulación con fines académicos — los resultados son orientativos y no reemplazan la evaluación oficial de Minciencias.
+</footer>
+
+<script>
+// ── DATOS ANEXO C OFICIAL ────────────────────────────────────────────────────
+const SIRES = {
+  ibc: [
+    { id:"jcr",      name:"Journal Citation Reports (JCR)",          short:"JCR" },
+    { id:"sjr",      name:"Scimago Journal Rank (SJR)",               short:"SJR" },
+    { id:"scopus",   name:"Scopus",                                   short:"Scopus" },
+    { id:"sci",      name:"Science Citation Index (SCI)",             short:"SCI" },
+    { id:"ssci",     name:"Social Science Citation Index (SSCI)",     short:"SSCI" },
+    { id:"ahci",     name:"Arts & Humanities Citation Index (AHCI)",  short:"AHCI" },
+    { id:"esci",     name:"Emerging Sources Citation Index (ESCI)",   short:"ESCI" },
+    { id:"scielo_ci",name:"SciELO Citation Index",                    short:"SciELO CI" },
+  ],
+  ib: [
+    { id:"biblat",   name:"BIBLAT",                                   short:"BIBLAT" },
+    { id:"redalyc",  name:"Redalyc",                                  short:"Redalyc" },
+    { id:"scielo_co",name:"SciELO Colombia",                          short:"SciELO Col." },
+    { id:"dimensions",name:"Dimensions",                              short:"Dimensions" },
+    { id:"openalex", name:"OpenAlex",                                 short:"OpenAlex" },
+    { id:"lens",     name:"Lens",                                     short:"Lens" },
+  ],
+  bb: [
+    { id:"cab",      name:"CAB Abstracts",                            short:"CAB/CABI" },
+    { id:"dialnet",  name:"DIALNET",                                  short:"Dialnet" },
+    { id:"doaj",     name:"DOAJ — Directory of Open Access Journals", short:"DOAJ" },
+    { id:"lilacs",   name:"LILACS",                                   short:"LILACS" },
+    { id:"eric",     name:"ERIC",                                     short:"ERIC" },
+    { id:"clase",    name:"Clase",                                    short:"Clase" },
+    { id:"periodica",name:"PERIODICA",                                short:"PERIODICA" },
+    { id:"mla",      name:"MLA International Bibliography",           short:"MLA" },
+    { id:"psycinfo", name:"PsycINFO",                                 short:"PsycINFO" },
+    { id:"medline",  name:"MEDLINE",                                  short:"MEDLINE" },
+    { id:"pubmed",   name:"PubMed",                                   short:"PubMed" },
+    { id:"embase",   name:"EMBASE",                                   short:"EMBASE" },
+    { id:"cinahl",   name:"CINAHL",                                   short:"CINAHL" },
+    { id:"global_health",name:"Global Index Medicus / Index Medicus", short:"GIM" },
+    { id:"inspec",   name:"INSPEC",                                   short:"INSPEC" },
+    { id:"compendex",name:"Compendex",                                short:"Compendex" },
+    { id:"zbmath",   name:"zbMATH",                                   short:"zbMATH" },
+    { id:"biosis",   name:"Biosis",                                   short:"Biosis" },
+    { id:"bio_abs",  name:"Biological Abstracts",                     short:"Biol. Abs." },
+    { id:"geobase",  name:"GEOBASE",                                  short:"GEOBASE" },
+    { id:"georef",   name:"GeoRef",                                   short:"GeoRef" },
+    { id:"ibss",     name:"International Bibliography of Social Sciences (IBSS)", short:"IBSS" },
+    { id:"rilm",     name:"RILM Abstracts of Music Literature",       short:"RILM" },
+    { id:"era",      name:"Educational Research Abstracts (ERA)",     short:"ERA" },
+    { id:"econlit",  name:"Economic Literature Index – Econlit",      short:"Econlit" },
+    { id:"hist_abs", name:"Historical Abstracts",                     short:"Hist. Abs." },
+    { id:"sociol",   name:"Sociological Abstracts",                   short:"Sociol. Abs." },
+    { id:"pais",     name:"Pais International",                       short:"PAIS Int." },
+    { id:"abi",      name:"ABI/INFORM Collection",                    short:"ABI/INFORM" },
+    { id:"asc",      name:"Academic Search Complete",                 short:"Acad. Search" },
+    { id:"fuente_ac",name:"Fuente Académica (Premier / Plus)",        short:"Fuente Acad." },
+    { id:"circ",     name:"CIRC — Clasificación Integrada de Revistas Científicas", short:"CIRC" },
+    { id:"ibz",      name:"IBZ — Internationale Bibliographie der Geistes- und Sozialwiss.", short:"IBZ" },
+    { id:"cuiden",   name:"CUIDEN",                                   short:"CUIDEN" },
+    { id:"tris",     name:"TRIS Electronic Bibliographic Data Base",  short:"TRIS" },
+    { id:"leisure",  name:"Leisure Tourism",                          short:"Leisure Tourism" },
+    { id:"geoworld", name:"GeoScienceWorld",                         short:"GeoScienceWorld" },
+    { id:"cas",      name:"CAS",                                      short:"CAS" },
+    { id:"zoolog",   name:"Zoological Record",                        short:"Zool. Record" },
+    { id:"ipsa",     name:"International Political Science Abstracts", short:"IPSA" },
+    { id:"ipa",      name:"International Pharmaceutical Abstracts",   short:"IPA" },
+  ]
+};
+
+// Palabras clave para detección automática en URL
+const DETECT_MAP = {
+  "jcr":       ["journal citation reports","jcr"],
+  "sjr":       ["scimago","sjr"],
+  "scopus":    ["scopus"],
+  "sci":       ["science citation index","\\bsci\\b"],
+  "ssci":      ["social science citation index","ssci"],
+  "ahci":      ["arts and humanities","ahci"],
+  "esci":      ["emerging sources","esci"],
+  "scielo_ci": ["scielo citation index"],
+  "biblat":    ["biblat"],
+  "redalyc":   ["redalyc"],
+  "scielo_co": ["scielo colombia","scielo.org"],
+  "dimensions":["dimensions"],
+  "openalex":  ["openalex"],
+  "lens":      ["lens.org","\\blens\\b"],
+  "cab":       ["cab abstracts","cabi","cabiabstracts","global health"],
+  "dialnet":   ["dialnet"],
+  "doaj":      ["doaj"],
+  "lilacs":    ["lilacs"],
+  "eric":      ["\\beric\\b"],
+  "clase":     ["\\bclase\\b"],
+  "periodica": ["periodica"],
+  "mla":       ["mla international","\\bmla\\b"],
+  "psycinfo":  ["psycinfo"],
+  "medline":   ["medline"],
+  "pubmed":    ["pubmed"],
+  "embase":    ["embase"],
+  "cinahl":    ["cinahl"],
+  "global_health":["global index medicus","index medicus"],
+  "inspec":    ["\\binspec\\b"],
+  "compendex": ["compendex"],
+  "zbmath":    ["zbmath"],
+  "biosis":    ["\\bbiosis\\b"],
+  "bio_abs":   ["biological abstracts"],
+  "geobase":   ["geobase"],
+  "georef":    ["\\bgeoref\\b"],
+  "ibss":      ["ibss","international bibliography of social"],
+  "rilm":      ["\\brilm\\b"],
+  "era":       ["educational research abstracts","\\bera\\b"],
+  "econlit":   ["econlit"],
+  "hist_abs":  ["historical abstracts"],
+  "sociol":    ["sociological abstracts"],
+  "pais":      ["pais international"],
+  "abi":       ["abi/inform","abi inform"],
+  "asc":       ["academic search complete"],
+  "fuente_ac": ["fuente acad","fuente académica","fuente academica"],
+  "circ":      ["\\bcirc\\b","clasificaci.n integrada"],
+  "ibz":       ["\\bibz\\b","internationale bibliographie"],
+  "cuiden":    ["cuiden"],
+  "tris":      ["\\btris\\b"],
+  "leisure":   ["leisure tourism"],
+  "geoworld":  ["geoscienceworld"],
+  "cas":       ["\\bcas\\b","chemical abstracts"],
+  "zoolog":    ["zoological record"],
+  "ipsa":      ["political science abstracts"],
+  "ipa":       ["pharmaceutical abstracts"],
+};
+
+// ── RENDER GRIDS ─────────────────────────────────────────────────────────────
+function renderGrid(gridId, items, type) {
+  const g = document.getElementById(gridId);
+  g.innerHTML = '';
+  items.forEach(sir => {
+    const div = document.createElement('div');
+    div.className = 'sir-item';
+    div.id = 'item-' + sir.id;
+    div.dataset.id = sir.id;
+    div.dataset.type = type;
+    div.innerHTML = `
+      <div class="sir-check" id="chk-${sir.id}">✓</div>
+      <div>
+        <div>${sir.name}</div>
+        <div class="sir-cat">${type === 'ibc' ? 'IBC' : type === 'ib' ? 'Índice Bibl.' : 'Base Bibl.'}</div>
+      </div>`;
+    div.addEventListener('click', () => toggleSir(sir.id));
+    g.appendChild(div);
+  });
+}
+
+renderGrid('grid-ibc', SIRES.ibc, 'ibc');
+renderGrid('grid-ib',  SIRES.ib,  'ib');
+renderGrid('grid-bb',  SIRES.bb,  'bb');
+
+const selected = new Set();
+
+function toggleSir(id) {
+  const el = document.getElementById('item-' + id);
+  if (selected.has(id)) {
+    selected.delete(id);
+    el.classList.remove('selected');
+  } else {
+    selected.add(id);
+    el.classList.add('selected');
+  }
+}
+
+function selectSir(id) {
+  if (!selected.has(id)) {
+    selected.add(id);
+    const el = document.getElementById('item-' + id);
+    if (el) el.classList.add('selected');
+  }
+}
+
+// ── URL FETCH & DETECT ───────────────────────────────────────────────────────
+async function fetchSirUrl() {
+  const url = document.getElementById('sir-url').value.trim();
+  const btn = document.getElementById('btn-fetch-url');
+  const statusEl = document.getElementById('url-status');
+  const detectedBox = document.getElementById('detected-box');
+  const chipsEl = document.getElementById('detected-chips');
+
+  if (!url) { statusEl.textContent = 'Ingresa una URL válida.'; statusEl.className = 'url-status err'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner">⟳</span> Consultando…';
+  statusEl.textContent = 'Consultando la URL…';
+  statusEl.className = 'url-status load';
+  detectedBox.style.display = 'none';
+
+  try {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const html = (data.contents || '').toLowerCase();
+
+    // detect SIRes
+    const found = [];
+    const foundIbc = [];
+    for (const [id, keywords] of Object.entries(DETECT_MAP)) {
+      for (const kw of keywords) {
+        const rx = new RegExp(kw, 'i');
+        if (rx.test(html)) {
+          const type = SIRES.ibc.find(s=>s.id===id) ? 'ibc'
+                     : SIRES.ib.find(s=>s.id===id)  ? 'ib' : 'bb';
+          const sirObj = [...SIRES.ibc,...SIRES.ib,...SIRES.bb].find(s=>s.id===id);
+          if (sirObj) {
+            selectSir(id);
+            if (type === 'ibc') foundIbc.push(sirObj.short);
+            else found.push(sirObj.short);
+          }
+          break;
+        }
+      }
+    }
+
+    const total = found.length + foundIbc.length;
+    if (total > 0) {
+      statusEl.textContent = `✓ URL accesible — ${total} SIRes detectados y marcados.`;
+      statusEl.className = 'url-status ok';
+      detectedBox.style.display = 'block';
+      chipsEl.innerHTML =
+        foundIbc.map(s=>`<span class="chip chip-ibc">${s}</span>`).join('') +
+        found.map(s=>`<span class="chip">${s}</span>`).join('');
+    } else {
+      statusEl.textContent = '⚠ URL accesible pero no se detectaron SIRes reconocidos. Selecciona manualmente.';
+      statusEl.className = 'url-status err';
+    }
+  } catch(e) {
+    statusEl.textContent = '⚠ No fue posible leer la URL automáticamente (CORS u otro error). Selecciona los SIRes manualmente.';
+    statusEl.className = 'url-status err';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Verificar URL';
+}
+
+// ── ANALIZAR ─────────────────────────────────────────────────────────────────
+function analizar() {
+  const nombre = document.getElementById('rev-nombre').value.trim() || 'Sin nombre';
+  const issn   = document.getElementById('rev-issn').value.trim()   || 'N/A';
+  const campo  = document.getElementById('rev-campo');
+  const campoTxt = campo.options[campo.selectedIndex].text;
+  const h5     = parseInt(document.getElementById('h5-val').value) || 0;
+  const fecha  = document.getElementById('pop-fecha').value.trim()  || 'N/A';
+  const url    = document.getElementById('sir-url').value.trim()    || '—';
+
+  // Clasificar los seleccionados
+  const selIBC = [...selected].filter(id => SIRES.ibc.find(s=>s.id===id));
+  const selIB  = [...selected].filter(id => SIRES.ib.find(s=>s.id===id));
+  const selBB  = [...selected].filter(id => SIRES.bb.find(s=>s.id===id));
+
+  // SIRes que cuentan para ICM = IB + BB (no IBC)
+  const siresICM = selIB.length + selBB.length;
+  const siresPct = Math.min(siresICM, 4) / 4; // 0..1
+
+  // Puntaje SIRes
+  const siresPctDisplay = siresICM === 0 ? '0%'
+    : siresICM === 1 ? '25%'
+    : siresICM === 2 ? '50%'
+    : siresICM === 3 ? '75%' : '100%';
+
+  // Actualizar métricas
+  document.getElementById('r-h5').textContent    = h5;
+  document.getElementById('r-sires-n').textContent = siresICM;
+  document.getElementById('r-sires-pct').textContent = siresPctDisplay;
+  document.getElementById('r-ibc-n').textContent  = selIBC.length;
+  document.getElementById('r-nombre').textContent = nombre;
+  document.getElementById('r-issn').textContent   = issn;
+  document.getElementById('r-campo').textContent  = campoTxt;
+  document.getElementById('r-fecha').textContent  = fecha;
+  document.getElementById('r-url').textContent    = url;
+
+  // IBC alert
+  const ibcAlert = document.getElementById('ibc-alert');
+  ibcAlert.style.display = selIBC.length > 0 ? 'block' : 'none';
+
+  // ICM bar
+  setTimeout(() => {
+    const pct = Math.round(siresPct * 100);
+    document.getElementById('icm-bar').style.width = pct + '%';
+    document.getElementById('icm-bar-lbl').textContent = pct + '% (componente SIRes)';
+  }, 200);
+
+  // Formula display
+  document.getElementById('icm-formula').textContent =
+    `ICM = (2/3 × H5_norm[${h5}]) + (1/3 × ${siresPctDisplay})`;
+
+  // Categoría
+  let catLetter, catColor, catBg, catName, catExplain;
+
+  if (selIBC.length > 0) {
+    catLetter  = "IBC";
+    catColor   = "#185FA5";
+    catBg      = "#E6F1FB";
+    catName    = "Clasificación directa por índice citacional";
+    catExplain = "La revista está en uno o más IBC reconocidos. Si tiene cuartil vigente en JCR o SJR para 2024, la categoría se determina por Tabla 3 directa (Q1=A1, Q2=A2, Q3=B, Q4=C), sin usar el ICM. Verificar cuartil activo en Scimago / JCR.";
+  } else if (siresICM === 0 && h5 === 0) {
+    catLetter  = "—";
+    catColor   = "#5A5850";
+    catBg      = "#F1EFE8";
+    catName    = "Sin datos suficientes";
+    catExplain = "Se requiere al menos un SIRes válido y un h5 mayor a cero para poder estimar la categoría.";
+  } else {
+    // Ruta ICM — quintiles relativos (simulación)
+    // Como no conocemos la distribución exacta del campo, presentamos el diagnóstico
+    // basado en el componente SIRes y una estimación del h5
+    const sireFuerte = siresICM >= 4;
+    const h5Alto     = h5 >= 10;
+    const h5Medio    = h5 >= 5 && h5 < 10;
+    const h5Bajo     = h5 < 5;
+
+    if (h5Alto && sireFuerte) {
+      catLetter  = "B";
+      catColor   = "#0F6E56";
+      catBg      = "#E1F5EE";
+      catName    = "Categoría B — probable (quintil 0–20%)";
+      catExplain = `Con h5 = ${h5} y SIRes al máximo, el ICM es competitivo. La categoría B requiere quedar en el quintil superior (0–20%) del Campo ${campoTxt}. Alta probabilidad si el campo tiene distribución típica.`;
+    } else if ((h5Alto && !sireFuerte) || (h5Medio && sireFuerte)) {
+      catLetter  = "B/C";
+      catColor   = "#854F0B";
+      catBg      = "#FAEEDA";
+      catName    = "Categoría B o C — depende del quintil del campo";
+      catExplain = `Con h5 = ${h5} y ${siresICM} SIRes (${siresPctDisplay}), el ICM es moderado-alto. La categoría final (B = top 20% o C = top 20–40%) depende de la distribución del ${campoTxt} entre todas las revistas participantes.`;
+    } else if (h5Medio && !sireFuerte) {
+      catLetter  = "C";
+      catColor   = "#854F0B";
+      catBg      = "#FAEEDA";
+      catName    = "Categoría C — probable (quintil 20–40%)";
+      catExplain = `Con h5 = ${h5} y ${siresICM} SIRes (${siresPctDisplay}), el ICM sitúa a la revista probablemente en el segundo quintil del campo. La categoría C es el resultado más probable salvo que la distribución del campo sea muy baja.`;
+    } else if (h5Bajo && siresICM >= 4) {
+      catLetter  = "C/R";
+      catColor   = "#5A5850";
+      catBg      = "#F1EFE8";
+      catName    = "Categoría C o Reconocida — h5 bajo compensa con SIRes";
+      catExplain = `h5 = ${h5} es bajo, pero tener ≥4 SIRes maximiza el componente de visibilidad (34% del ICM). Si la distribución del campo favorece, puede alcanzar C. En cualquier caso, cumplir Fases I y II garantiza la tipología Reconocida.`;
+    } else {
+      catLetter  = "Rec.";
+      catColor   = "#5A5850";
+      catBg      = "#F1EFE8";
+      catName    = "Tipología Reconocida";
+      catExplain = `Con h5 = ${h5} y ${siresICM} SIRes (${siresPctDisplay}), el ICM probablemente queda por debajo del percentil 40 del campo. Si la revista cumple con las Fases I y II, obtiene la tipología Reconocida, que la visibiliza en el ecosistema Publindex.`;
+    }
+  }
+
+  const catBlock = document.getElementById('cat-block');
+  catBlock.style.background = catBg;
+  catBlock.style.border = `1.5px solid ${catColor}40`;
+  document.getElementById('cat-letter').textContent = catLetter;
+  document.getElementById('cat-letter').style.color = catColor;
+  document.getElementById('cat-name').textContent   = catName;
+  document.getElementById('cat-explain').textContent = catExplain;
+
+  // Tabla SIRes
+  const tbody = document.getElementById('sir-result-body');
+  tbody.innerHTML = '';
+  let n = 1;
+  const allSel = [...selIBC, ...selIB, ...selBB];
+  if (allSel.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gris-text);padding:1rem">Ningún SIR seleccionado</td></tr>';
+  } else {
+    allSel.forEach(id => {
+      const sirObj = [...SIRES.ibc,...SIRES.ib,...SIRES.bb].find(s=>s.id===id);
+      const isIBC  = SIRES.ibc.find(s=>s.id===id);
+      const isIB   = SIRES.ib.find(s=>s.id===id);
+      const tipo   = isIBC ? 'Índice Bibl. de Citaciones' : isIB ? 'Índice Bibliográfico' : 'Base Bibl. c/ Comité';
+      const estado = isIBC
+        ? '<span class="pill pill-ibc">IBC — clasificación directa</span>'
+        : '<span class="pill pill-ok">Válido ICM</span>';
+      tbody.innerHTML += `<tr>
+        <td style="font-family:'DM Mono',monospace;color:var(--gris-text)">${n++}</td>
+        <td>${sirObj ? sirObj.name : id}</td>
+        <td>${tipo}</td>
+        <td>${estado}</td>
+      </tr>`;
+    });
+  }
+
+  // Advertencias
+  const warns = document.getElementById('warns-section');
+  warns.innerHTML = '';
+  if (!SIRES.ibc.find(s=>s.id==='jcr') || !selected.has('jcr')) {
+    // solo mostrar advertencias si no es vía IBC
+  }
+  const warnings = [];
+  if (siresICM < 4 && selIBC.length === 0) {
+    warnings.push(`Solo ${siresICM} SIR(es) válidos para ICM. Con 4 o más se obtiene el 100% del componente de visibilidad. Revisar si la revista puede acreditar más SIRes del Anexo C.`);
+  }
+  if (h5 === 0) {
+    warnings.push('El h5 ingresado es 0. Verificar la cadena de búsqueda en PoP: source:"nombre completo" "ISSN" con ventana 2020-2024.');
+  }
+  if (h5 > 0 && h5 < 4) {
+    warnings.push(`Un h5 de ${h5} es muy bajo. El componente H5 representa el 66% del ICM. Considerar estrategias de visibilidad y citación para mejorar este indicador en próximas convocatorias.`);
+  }
+
+  warnings.forEach(w => {
+    warns.innerHTML += `<div class="warn-box"><strong>⚠ Atención</strong>${w}</div>`;
+  });
+
+  // Show results
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  // limpiar seleccionados
+  selected.forEach(id => {
+    const el = document.getElementById('item-' + id);
+    if (el) el.classList.remove('selected');
+  });
+  selected.clear();
+  document.getElementById('url-status').textContent = '';
+  document.getElementById('detected-box').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
