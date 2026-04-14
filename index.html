@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analizador Publindex 2026 — Fase III · v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vd:#0F6E56;--vm:#1D9E75;--vl:#E1F5EE;--vk:#085041;
+  --gb:#F4F2EC;--gd:#D8D5CA;--gt:#5A5850;
+  --am:#854F0B;--al:#FAEEDA;
+  --az:#185FA5;--zl:#E6F1FB;
+  --rj:#A32D2D;--rl:#FCEBEB;
+  --ng:#1E1E1C;--bl:#FAFAF7;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Instrument Sans',sans-serif;background:var(--gb);color:var(--ng);min-height:100vh}
+
+/* HEADER */
+header{background:var(--vk);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;gap:1rem}
+.logo{font-family:'DM Serif Display',serif;color:#fff;font-size:1.05rem;white-space:nowrap}
+.hright{display:flex;align-items:center;gap:.65rem;flex-shrink:0}
+.ver{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-family:'DM Mono',monospace;font-size:.65rem;padding:3px 9px;border-radius:100px;border:1px solid rgba(255,255,255,.25)}
+.badge{background:var(--vm);color:#fff;font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em}
+.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:5px 12px;font-family:'Instrument Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s}
+.hbtn:hover{background:rgba(255,255,255,.25)}
+
+/* LAYOUT */
+.wrap{max-width:980px;margin:0 auto;padding:2.25rem 1.5rem 4rem}
+.hero{margin-bottom:2rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--vk);line-height:1.15;margin-bottom:.5rem}
+.hero p{font-size:.92rem;color:var(--gt);max-width:600px;line-height:1.65}
+
+/* CARDS */
+.card{background:var(--bl);border:1px solid var(--gd);border-radius:12px;padding:1.75rem;margin-bottom:1.25rem}
+.ct{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--vk);margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.ct .n{background:var(--vd);color:#fff;font-family:'DM Mono',monospace;font-size:.75rem;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* FORM */
+label{display:block;font-size:.77rem;font-weight:600;color:var(--gt);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem}
+input[type=text],input[type=number],input[type=url],input[type=password],select{width:100%;padding:.7rem .9rem;border:1.5px solid var(--gd);border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:.95rem;background:var(--bl);color:var(--ng);outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--vm)}
+input[type=number]{max-width:130px;font-family:'DM Mono',monospace;font-size:1.25rem;font-weight:500}
+input[type=password]{max-width:260px;letter-spacing:.1em}
+.field{margin-bottom:1.1rem}
+.hint{font-size:.78rem;color:var(--gt);margin-top:.35rem;line-height:1.55}
+.hint a{color:var(--vd);text-decoration:none;font-weight:600}
+.hint a:hover{text-decoration:underline}
+.row2{display:flex;gap:1rem;flex-wrap:wrap}
+.row2 .field{flex:1;min-width:150px}
+.pop-info{background:var(--zl);border:1px solid #7baed8;border-radius:8px;padding:.85rem 1rem;margin-top:.75rem;font-size:.82rem;color:var(--az);line-height:1.6}
+.pop-info strong{display:block;margin-bottom:.2rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+.pop-info a{color:var(--az);font-weight:600}
+
+/* SIR GRID */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:.45rem;margin-top:.5rem}
+.si{display:flex;align-items:center;gap:.55rem;padding:.5rem .75rem;border:1.5px solid var(--gd);border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none;font-size:.82rem;line-height:1.3}
+.si:hover{border-color:var(--vm);background:var(--vl)}.si.on{border-color:var(--vd);background:var(--vl)}
+.chk{width:17px;height:17px;border:2px solid var(--gd);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .15s}
+.si.on .chk{background:var(--vd);border-color:var(--vd)}
+.scat{font-size:.66rem;color:var(--gt);font-family:'DM Mono',monospace}
+.slbl{font-size:.71rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gt);margin:1rem 0 .4rem;padding-bottom:.3rem;border-bottom:1px solid var(--gd)}
+
+/* URL */
+.urow{display:flex;gap:.5rem;align-items:center}
+.bfetch{white-space:nowrap;padding:.7rem 1.1rem;border:1.5px solid var(--vd);background:transparent;color:var(--vd);border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+.bfetch:hover{background:var(--vd);color:#fff}
+.bfetch:disabled{opacity:.4;cursor:not-allowed}
+.ust{font-size:.78rem;margin-top:.35rem;min-height:1rem}
+.ust.ok{color:var(--vd)}.ust.er{color:var(--rj)}.ust.ld{color:var(--gt)}
+.dbox{margin-top:.75rem;padding:.75rem 1rem;background:var(--gb);border-radius:8px;border:1px solid var(--gd);font-size:.82rem;line-height:1.6}
+.dbox strong{display:block;margin-bottom:.3rem;font-size:.77rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gt)}
+.chip{display:inline-block;background:var(--vl);color:var(--vd);border-radius:4px;padding:1px 7px;font-size:.77rem;margin:2px 3px 2px 0;border:1px solid var(--vm)}
+.chipc{background:var(--zl);color:var(--az);border-color:#7baed8}
+
+/* BUTTONS */
+.bprim{display:block;width:100%;padding:1rem;background:var(--vd);color:#fff;border:none;border-radius:10px;font-family:'DM Serif Display',serif;font-size:1.1rem;cursor:pointer;transition:background .15s;margin-top:.5rem}
+.bprim:hover{background:var(--vk)}
+.ferr{color:var(--rj);font-size:.85rem;margin-top:.75rem;display:none}
+.bsec{background:none;border:1.5px solid var(--gd);border-radius:8px;padding:.65rem 1.2rem;font-family:'Instrument Sans',sans-serif;font-size:.85rem;color:var(--gt);cursor:pointer;transition:all .15s}
+.bsec:hover{border-color:var(--ng);color:var(--ng)}
+.bdl{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.2rem;border:1.5px solid var(--vd);background:var(--vd);color:#fff;border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+.bdl:hover{background:var(--vk);border-color:var(--vk)}
+.bdl-sec{background:transparent;color:var(--vd)}
+.bdl-sec:hover{background:var(--vl);border-color:var(--vm)}
+
+/* RESULTS */
+.hidden{display:none!important}
+.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem}
+@media(max-width:580px){.mrow{grid-template-columns:repeat(2,1fr)}}
+.met{background:var(--gb);border-radius:10px;padding:1rem;text-align:center}
+.mv{font-family:'DM Mono',monospace;font-size:1.75rem;font-weight:500;line-height:1;margin-bottom:.3rem}
+.ml{font-size:.69rem;color:var(--gt);text-transform:uppercase;letter-spacing:.06em}
+
+.cres{border-radius:12px;padding:1.5rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;border:2px solid transparent}
+.cl{font-family:'DM Serif Display',serif;font-size:2.8rem;line-height:1;flex-shrink:0;min-width:85px;text-align:center}
+.cd h3{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:.4rem}
+.cd p{font-size:.86rem;line-height:1.6}
+
+/* Diag */
+.diag-title{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--vk);margin-bottom:.75rem;padding-bottom:.35rem;border-bottom:2px solid var(--vl)}
+table.ft{width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:1rem}
+table.ft th{background:var(--vd);color:#fff;padding:.55rem .75rem;text-align:left;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+table.ft td{padding:.6rem .75rem;border-bottom:1px solid var(--gd);vertical-align:top;line-height:1.5}
+table.ft tr:nth-child(even) td{background:var(--gb)}
+.ftag{display:inline-block;font-size:.69rem;font-weight:600;padding:2px 8px;border-radius:100px;white-space:nowrap}
+.tag-hi{background:#FCEBEB;color:#A32D2D}.tag-ok{background:var(--vl);color:var(--vd)}
+.tag-mid{background:var(--al);color:var(--am)}.tag-info{background:var(--zl);color:var(--az)}
+
+table.st{width:100%;border-collapse:collapse;font-size:.83rem;margin-top:.75rem}
+table.st th{background:var(--vd);color:#fff;padding:.55rem .75rem;text-align:left;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+table.st td{padding:.5rem .75rem;border-bottom:1px solid var(--gd);vertical-align:middle}
+table.st tr:nth-child(even) td{background:var(--gb)}
+.pill{display:inline-block;font-size:.69rem;font-weight:600;padding:2px 8px;border-radius:100px}
+.pok{background:var(--vl);color:var(--vd)}.pibc{background:var(--zl);color:var(--az)}
+
+.ibar-w{background:var(--gb);border-radius:8px;overflow:hidden;height:12px;margin:.35rem 0}
+.ibar{height:100%;background:var(--vm);border-radius:8px;transition:width .9s cubic-bezier(.23,1,.32,1);width:0}
+.fbox{background:var(--vl);border:1px solid var(--vm);border-radius:8px;padding:.85rem 1.1rem;font-family:'DM Mono',monospace;font-size:.87rem;color:var(--vk);margin:.75rem 0}
+.wbox{background:var(--al);border:1px solid #dba462;border-radius:8px;padding:.9rem 1.1rem;font-size:.83rem;color:var(--am);line-height:1.6;margin-top:.75rem}
+.wbox strong{display:block;margin-bottom:.2rem;font-size:.79rem}
+.ibox{background:var(--zl);border:1px solid #7baed8;border-radius:8px;padding:.85rem 1.1rem;font-size:.81rem;color:var(--az);margin-bottom:1rem;line-height:1.55}
+.concl{background:var(--vl);border:2px solid var(--vd);border-radius:10px;padding:1.25rem 1.5rem;margin-top:1.25rem}
+.concl h4{font-family:'DM Serif Display',serif;color:var(--vk);font-size:.98rem;margin-bottom:.5rem}
+.concl p{font-size:.86rem;line-height:1.65;color:var(--ng)}
+.ir{display:flex;gap:.5rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px solid var(--gd);font-size:.875rem}
+.ir:last-child{border-bottom:none}
+.ilb{font-weight:600;min-width:155px;color:var(--gt);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.iv{flex:1}
+
+/* ═══ MODERADOR ═══ */
+.mod-overlay{position:fixed;inset:0;background:rgba(8,80,65,.85);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mod-box{background:var(--bl);border-radius:16px;padding:2.5rem;width:100%;max-width:500px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mod-box h2{font-family:'DM Serif Display',serif;color:var(--vk);margin-bottom:.5rem;font-size:1.5rem}
+.mod-box p{font-size:.87rem;color:var(--gt);margin-bottom:1.5rem;line-height:1.5}
+.mod-err{color:var(--rj);font-size:.82rem;margin-top:.5rem;min-height:1rem}
+
+/* Dashboard */
+.dash-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.dash-header h2{font-family:'DM Serif Display',serif;color:var(--vk);font-size:1.4rem}
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+@media(max-width:580px){.dash-stats{grid-template-columns:repeat(2,1fr)}}
+.dstat{background:var(--gb);border-radius:10px;padding:1rem;text-align:center}
+.dstat .dsv{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--vk);margin-bottom:.2rem}
+.dstat .dsl{font-size:.69rem;color:var(--gt);text-transform:uppercase;letter-spacing:.06em}
+.dl-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem}
+
+/* DB Table */
+.db-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--gd)}
+table.db{width:100%;border-collapse:collapse;font-size:.79rem;min-width:900px}
+table.db th{background:var(--vk);color:#fff;padding:.55rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+table.db td{padding:.5rem .75rem;border-bottom:1px solid var(--gd);vertical-align:middle;font-size:.8rem}
+table.db tr:hover td{background:var(--vl)}
+.cat-pill{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:100px}
+.cat-A1,.cat-A2{background:var(--zl);color:var(--az)}
+.cat-B{background:var(--vl);color:var(--vd)}
+.cat-C{background:var(--al);color:var(--am)}
+.cat-IBC{background:#e8f0fe;color:#1a56db}
+.cat-R,.cat-REC{background:var(--gb);color:var(--gt)}
+.empty-db{text-align:center;padding:3rem;color:var(--gt);font-style:italic}
+
+/* ── DUAL PANEL IBC vs ICM ── */
+.dual-panel{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+@media(max-width:620px){.dual-panel{grid-template-columns:1fr}}
+.dp-card{border-radius:12px;border:2px solid var(--gd);padding:1.25rem;transition:all .2s;background:var(--bl)}
+.dp-card.dp-active{border-color:var(--vd);box-shadow:0 0 0 3px var(--vl)}
+.dp-card.dp-inactive{opacity:.55}
+.dp-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem}
+.dp-icon{font-size:1.25rem;flex-shrink:0}
+.dp-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--vk);line-height:1.1}
+.dp-sub{font-size:.72rem;color:var(--gt);margin-top:.1rem}
+.dp-badge{background:var(--vd);color:#fff;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em;margin-left:auto;flex-shrink:0;white-space:nowrap}
+.dp-cat{font-family:'DM Serif Display',serif;font-size:2.2rem;font-weight:400;text-align:center;border-radius:10px;padding:.65rem .5rem;margin-bottom:.75rem;line-height:1;transition:all .2s}
+.dp-detail{font-size:.82rem;color:var(--gt);line-height:1.6}
+
+/* Spinner */
+.spin{display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+footer{text-align:center;padding:1.75rem 2rem;font-size:.74rem;color:var(--gt);border-top:1px solid var(--gd);margin-top:2rem;line-height:1.6}
+footer .sim-note{display:inline-block;margin-top:.4rem;background:var(--al);color:var(--am);border-radius:100px;padding:2px 12px;font-size:.71rem;font-weight:600}
+footer .vf{font-family:'DM Mono',monospace;font-size:.69rem;color:var(--gd)}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+<header>
+  <span class="logo">Publindex Analyzer</span>
+  <div class="hright">
+    <span class="ver">v5 · abril 2026</span>
+    <span class="badge">Convocatoria 977</span>
+    <button class="hbtn" onclick="openMod()">⚙ Moderador</button>
+  </div>
+</header>
+
+<!-- ═══ MODERADOR OVERLAY ════════════════════════════════════════════════ -->
+<div class="mod-overlay hidden" id="mod-overlay">
+  <!-- LOGIN -->
+  <div class="mod-box" id="mod-login">
+    <h2>Panel de moderador</h2>
+    <p>Acceso restringido. Ingresa la contraseña para visualizar y exportar la base de datos de consultas registradas.</p>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="mod-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()">
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="bprim" style="flex:1;padding:.75rem" onclick="checkPass()">Acceder</button>
+      <button class="bsec" onclick="closeMod()">Cancelar</button>
+    </div>
+    <div class="mod-err" id="mod-err"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="mod-box hidden" id="mod-dash" style="max-width:1100px;max-height:90vh;overflow-y:auto">
+    <div class="dash-header">
+      <h2>Base de datos — Consultas registradas</h2>
+      <div style="display:flex;gap:.5rem">
+        <button class="bdl bdl-sec" onclick="refreshDash()">↻ Actualizar</button>
+        <button class="bsec" onclick="closeMod()">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats">
+      <div class="dstat"><div class="dsv" id="ds-total">0</div><div class="dsl">Total consultas</div></div>
+      <div class="dstat"><div class="dsv" id="ds-revistas">0</div><div class="dsl">Revistas únicas</div></div>
+      <div class="dstat"><div class="dsv" id="ds-h5avg">—</div><div class="dsl">H5 promedio</div></div>
+      <div class="dstat"><div class="dsv" id="ds-ultima">—</div><div class="dsl">Última consulta</div></div>
+    </div>
+
+    <!-- Descarga -->
+    <div class="dl-row">
+      <button class="bdl" onclick="exportCSV()">⬇ Descargar CSV</button>
+      <button class="bdl bdl-sec" onclick="exportJSON()">⬇ Descargar JSON</button>
+      <button class="bsec" style="color:var(--rj);border-color:var(--rj)" onclick="clearDB()">✕ Limpiar base de datos</button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="db-wrap">
+      <table class="db">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fecha y hora</th>
+            <th>Revista</th>
+            <th>ISSN</th>
+            <th>Campo Minciencias</th>
+            <th>H5</th>
+            <th>SIRes ICM</th>
+            <th>Puntaje SIRes</th>
+            <th>Cat. IBC</th>
+            <th>Cat. ICM</th>
+            <th>Favorabilidad</th>
+            <th>Categoría final</th>
+            <th>URL indexación</th>
+          </tr>
+        </thead>
+        <tbody id="db-tbody">
+          <tr><td colspan="11" class="empty-db">Cargando datos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.75rem;color:var(--gt);margin-top:.75rem">Los datos se almacenan en este navegador (localStorage). El CSV y JSON contienen todos los registros en texto plano.</p>
+  </div>
+</div>
+
+<!-- ═══ MAIN WRAPPER ══════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="hero">
+    <h1>Analizador Fase III<br><em>Publindex 2026</em></h1>
+    <p>Ingresa el h5 de Publish or Perish (PoP) y la URL donde la revista reporta sus índices. El sistema verifica contra el <strong>Anexo C oficial</strong> (72 SIRes), calcula el ICM y genera un diagnóstico detallado. Cada consulta queda registrada para análisis de uso.</p>
+  </div>
+
+  <!-- ═══ FORMULARIO ═══════════════════════════════════════════════════ -->
+  <div id="FS">
+
+    <div class="card">
+      <div class="ct"><span class="n">1</span> Datos de la revista</div>
+      <div class="field">
+        <label>Nombre de la revista</label>
+        <input type="text" id="f-nom" placeholder="Ej. Revista Colombiana de Psicología">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>ISSN impreso</label>
+          <input type="text" id="f-issn" placeholder="0000-0000">
+        </div>
+        <div class="field">
+          <label>e-ISSN</label>
+          <input type="text" id="f-eissn" placeholder="0000-0000">
+        </div>
+      </div>
+      <div class="field">
+        <label>Campo de Conocimiento Minciencias</label>
+        <select id="f-campo">
+          <option value="" disabled selected>— Seleccionar campo —</option>
+          <option value="1">1. Ciencias Agrícolas y Veterinarias</option>
+          <option value="2">2. Ciencias Biológicas</option>
+          <option value="3">3. Ciencias de la Tierra y Medioambientales</option>
+          <option value="4">4. Ciencias Exactas</option>
+          <option value="5">5. Ingenierías</option>
+          <option value="6">6. Artes</option>
+          <option value="7">7. Humanidades</option>
+          <option value="8">8. Ciencias Económicas, Administrativas y Contables</option>
+          <option value="9">9. Ciencias Sociales</option>
+          <option value="10">10. Derecho</option>
+          <option value="11">11. Educación</option>
+          <option value="12">12. Psicología</option>
+          <option value="13">13. Medicina Clínica</option>
+          <option value="14">14. Medicina Básica</option>
+          <option value="15">15. Ciencias de la Salud</option>
+          <option value="16">16. Multidisciplinar</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="n">2</span> Índice H5 — Publish or Perish (PoP)</div>
+      <div class="field">
+        <label>Valor H5 calculado</label>
+        <input type="number" id="f-h5" min="0" max="500" placeholder="0">
+        <p class="hint">Ventana oficial: <strong>1 ene. 2020 – 31 dic. 2024</strong> · Fuente: Google Scholar · Cadena: <em>source:"nombre revista" "ISSN"</em></p>
+      </div>
+      <div class="field">
+        <label>Fecha de consulta PoP</label>
+        <input type="text" id="f-fecha" placeholder="Ej. 8 de abril de 2026" style="max-width:300px">
+      </div>
+      <div class="pop-info">
+        <strong>¿Qué es Publish or Perish (PoP)?</strong>
+        Software gratuito de la Prof. Anne-Wil Harzing que recupera citas desde Google Scholar y calcula métricas como el índice h y h5. Es la <strong>herramienta oficial requerida por Minciencias</strong> para la Convocatoria Publindex 2026.
+        <br><strong>Descarga gratuita:</strong> <a href="https://harzing.com/resources/publish-or-perish" target="_blank" rel="noopener">harzing.com/resources/publish-or-perish</a> · Windows, macOS y Linux.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="n">3</span> Página de indexación</div>
+      <div class="field">
+        <label>URL donde la revista lista sus índices</label>
+        <div class="urow">
+          <input type="url" id="f-url" placeholder="https://revistas.ejemplo.edu.co/revista/indexacion">
+          <button class="bfetch" id="btn-f" onclick="doFetch()">Verificar URL</button>
+        </div>
+        <div class="ust" id="ust"></div>
+        <p class="hint">Se detectan automáticamente los SIRes del Anexo C mencionados en la página. Si hay bloqueo CORS, selecciona manualmente.</p>
+        <div class="dbox hidden" id="dbox">
+          <strong>SIRes detectados automáticamente</strong>
+          <div id="dchips"></div>
+          <p style="font-size:.77rem;color:var(--gt);margin-top:.4rem">Marcados en el paso 4. Verifica y ajusta si es necesario.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="n">4</span> SIRes — Anexo C oficial (72 sistemas)</div>
+      <p style="font-size:.83rem;color:var(--gt);margin-bottom:.75rem;line-height:1.55">
+        Marca los SIRes en los que figura la revista. Con <strong>4 o más SIRes</strong> de tipo base/índice el componente de visibilidad alcanza el 100%.
+      </p>
+      <div class="slbl">⚡ Índices Bibliográficos de Citaciones (IBC) — clasificación directa si hay cuartil vigente en JCR/SJR</div>
+      <div class="sg" id="g-ibc"></div>
+      <div class="slbl">📚 Índices Bibliográficos</div>
+      <div class="sg" id="g-ib"></div>
+      <div class="slbl">🗂 Bases Bibliográficas con Comité de Selección</div>
+      <div class="sg" id="g-bb"></div>
+    </div>
+
+    <button class="bprim" onclick="analizar()">Generar diagnóstico completo →</button>
+    <p class="ferr" id="ferr"></p>
+  </div>
+
+  <!-- ═══ RESULTADOS ════════════════════════════════════════════════════ -->
+  <div id="RS" class="hidden">
+    <div class="card">
+      <div class="ct"><span class="n">✓</span> Diagnóstico — <span id="r-nom-h" style="font-style:italic">—</span></div>
+
+      <!-- Métricas clave -->
+      <div class="mrow">
+        <div class="met"><div class="mv" id="r-h5" style="color:var(--vk)">0</div><div class="ml">H5 (PoP)</div></div>
+        <div class="met"><div class="mv" id="r-sn"  style="color:var(--az)">0</div><div class="ml">SIRes ICM</div></div>
+        <div class="met"><div class="mv" id="r-sp"  style="color:var(--am)">0%</div><div class="ml">Puntaje SIRes</div></div>
+        <div class="met"><div class="mv" id="r-in"  style="color:var(--rj)">0</div><div class="ml">IBC selec.</div></div>
+      </div>
+
+      <!-- DUAL PANEL: IBC vs ICM -->
+      <div class="diag-title" style="margin-top:.25rem">Clasificación por las dos vías — Principio de favorabilidad</div>
+      <p style="font-size:.82rem;color:var(--gt);margin-bottom:1rem;line-height:1.5">El modelo Publindex 2026 aplica el principio de <strong>favorabilidad</strong>: cuando la revista cuenta con cuartil en JCR o SJR, se toma la mejor categoría resultante entre la vía IBC y la vía ICM. El panel resaltado indica la clasificación que aplica.</p>
+
+      <div class="dual-panel" id="dual-panel">
+        <!-- Panel IBC -->
+        <div class="dp-card" id="dp-ibc">
+          <div class="dp-header">
+            <span class="dp-icon">⚡</span>
+            <div>
+              <div class="dp-title">Vía IBC</div>
+              <div class="dp-sub">JCR / SJR — Cuartil directo</div>
+            </div>
+            <span class="dp-badge hidden" id="dp-ibc-favbadge">Favorabilidad</span>
+          </div>
+          <div class="dp-cat" id="dp-ibc-cat" style="color:#5A5850;background:#F1EFE8">—</div>
+          <div class="dp-detail" id="dp-ibc-detail">Sin IBC seleccionados o sin cuartil vigente para 2024.</div>
+        </div>
+        <!-- Panel ICM -->
+        <div class="dp-card" id="dp-icm">
+          <div class="dp-header">
+            <span class="dp-icon">📊</span>
+            <div>
+              <div class="dp-title">Vía ICM</div>
+              <div class="dp-sub">Índice de Combinación de Métricas</div>
+            </div>
+            <span class="dp-badge hidden" id="dp-icm-favbadge">Favorabilidad</span>
+          </div>
+          <div class="dp-cat" id="dp-icm-cat" style="color:#5A5850;background:#F1EFE8">—</div>
+          <div class="dp-detail" id="dp-icm-detail">—</div>
+        </div>
+      </div>
+
+      <!-- Resultado por favorabilidad -->
+      <div class="cres" id="cblock" style="background:#F1EFE8;border-color:#D8D5CA">
+        <div class="cl" id="cltr" style="color:#5A5850">?</div>
+        <div class="cd">
+          <h3 id="cnom" style="color:#1E1E1C">—</h3>
+          <p id="cexp" style="color:#5A5850">Complete el formulario.</p>
+        </div>
+      </div>
+
+      <div class="fbox" id="fform">ICM = (2/3 × H5_norm) + (1/3 × SIRes_norm)</div>
+      <p style="font-size:.81rem;color:var(--gt);margin-bottom:.4rem">Componente SIRes (34% del ICM)</p>
+      <div class="ibar-w"><div class="ibar" id="ibar"></div></div>
+      <p style="font-size:.74rem;color:var(--gt);text-align:right;margin-top:2px" id="ibarlbl">0%</p>
+
+      <div style="margin-top:1.5rem"><div class="diag-title">Análisis detallado de factores</div>
+      <table class="ft"><thead><tr><th>Factor</th><th>Valor</th><th>Impacto</th><th>Observación</th></tr></thead>
+      <tbody id="diag-body"></tbody></table></div>
+
+      <div style="margin-top:1.25rem"><div class="diag-title">Detalle SIRes seleccionados</div>
+      <table class="st"><thead><tr><th>#</th><th>Sistema</th><th>Tipo</th><th>Estado</th></tr></thead>
+      <tbody id="stbody"><tr><td colspan="4" style="text-align:center;color:var(--gt);padding:1rem;font-style:italic">—</td></tr></tbody></table></div>
+
+      <div id="warns"></div>
+
+      <div class="concl" id="concl-box">
+        <h4>Conclusión del diagnóstico</h4>
+        <p id="concl-text">—</p>
+      </div>
+
+      <div style="margin-top:1.5rem">
+        <div class="ir"><span class="ilb">Revista</span><span class="iv" id="r-nom2">—</span></div>
+        <div class="ir"><span class="ilb">ISSN / e-ISSN</span><span class="iv" id="r-issn">—</span></div>
+        <div class="ir"><span class="ilb">Campo Minciencias</span><span class="iv" id="r-campo">—</span></div>
+        <div class="ir"><span class="ilb">Fecha consulta PoP</span><span class="iv" id="r-fecha">—</span></div>
+        <div class="ir"><span class="ilb">URL indexación</span><span class="iv" id="r-url" style="word-break:break-all;font-size:.79rem">—</span></div>
+        <div class="ir"><span class="ilb">Generado</span><span class="iv" id="r-gen" style="font-family:'DM Mono',monospace;font-size:.79rem">—</span></div>
+      </div>
+
+      <div style="background:var(--vl);border:1px solid var(--vm);border-radius:8px;padding:.8rem 1rem;margin-top:1.25rem;font-size:.8rem;color:var(--vd)">
+        ✓ Esta consulta ha sido registrada automáticamente en la base de datos del simulador.
+      </div>
+
+      <button class="bsec" style="margin-top:1rem" onclick="resetApp()">← Nueva consulta</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Analizador Fase III · Publindex Convocatoria 977 de 2026 · Ministerio de Ciencia, Tecnología e Innovación de Colombia<br>
+  <span class="sim-note">⚠ Simulación académica — resultados orientativos, no reemplazan la evaluación oficial de Minciencias</span><br>
+  <span class="vf">v5 · abril 2026 · Basado en TDR, Modelo de Clasificación y Anexo C — Convocatoria 977</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN
+═══════════════════════════════════════════════════════════════════════ */
+var MOD_PASS = 'Publindex2026';   // ← cambiar si se desea otra contraseña
+var DB_KEY   = 'pub2026_consultas';
+
+// ── GOOGLE SHEETS BACKEND ─────────────────────────────────────────────
+// Pega aquí la URL del Apps Script desplegado (ver instructivo).
+// Mientras esté vacía, solo se guarda localmente.
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxvgneajfAeAbQqR20Y_dw6-fpVo2y_UF9Ha-WuRtqzgDyCZENZSpHAihEa_Gc6dXse/exec';
+
+function enviarASheets(record){
+  if(!SHEETS_URL) return;          // no configurado → solo localStorage
+  var params=new URLSearchParams();
+  Object.keys(record).forEach(function(k){
+    params.append(k, record[k]!==undefined ? String(record[k]) : '');
+  });
+  // fetch sin await: dispara y olvida, no bloquea la UI ni al usuario
+  fetch(SHEETS_URL, {method:'POST', body:params})
+    .catch(function(){/* silencioso: localStorage ya tiene el registro */});
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BENCHMARK — posicionamiento H5 global
+   Escala: 0-120+ → porcentaje del track (0-100%)
+   Zonas: Q1>50 (0-20%), Q2 35-50 (20-35%), Q3 20-35 (35-55%),
+          Q4 10-20 (55-75%), <10 (75-100%)
+═══════════════════════════════════════════════════════════════════════ */
+function h5ToPercent(h5){
+  if(h5<=0)   return 95;
+  if(h5>=120) return 2;
+  if(h5>=50)  return 2 + (120-h5)/70*18;          /* Q1: 2–20% */
+  if(h5>=35)  return 20 + (50-h5)/15*15;          /* Q2: 20–35% */
+  if(h5>=20)  return 35 + (35-h5)/15*20;          /* Q3: 35–55% */
+  if(h5>=10)  return 55 + (20-h5)/10*20;          /* Q4: 55–75% */
+  return 75 + (10-h5)/10*20;                       /* ICM: 75–95% */
+}
+
+function h5BmContext(h5){
+  if(h5<=0)   return 'H5 = 0 o sin valor. No es posible posicionar en el benchmark. Verificar búsqueda en PoP.';
+  if(h5>=50)  return 'H5 = '+h5+': zona Q1 global (Sports Science / Physical Education en Scopus/SJR). Altamente competitivo internacionalmente. Supera la mediana de revistas colombianas indexadas en cualquier área.';
+  if(h5>=35)  return 'H5 = '+h5+': zona Q2 global. Competitivo internacionalmente en Ciencias del Deporte. Supera ampliamente a cualquier revista colombiana actualmente indexada en esa categoría (ninguna presente).';
+  if(h5>=20)  return 'H5 = '+h5+': zona Q3 global (Scopus/SJR). Comparable a revistas Q3 colombianas como Biomédica (h=36 · SJR Q3). Fuerte para Publindex ICM — probable categoría B.';
+  if(h5>=10)  return 'H5 = '+h5+': zona Q4 global. Por encima de la mediana estimada del Campo Educación en Colombia. Probable categoría B o C en ICM Publindex, dependiendo de la distribución del campo al cierre.';
+  if(h5>=5)   return 'H5 = '+h5+': por debajo del Q4 global pero dentro del rango típico de revistas latinoamericanas de Educación/Deporte. Probable categoría C en ICM Publindex. La mediana estimada del Campo 11 en Colombia es h5 ≈ 3–8.';
+  return 'H5 = '+h5+': bajo en cualquier benchmark de referencia. Comparable al rango inferior de revistas regionales LAC. Probable tipología Reconocida en ICM, a menos que la distribución del Campo Minciencias sea muy baja.';
+}
+
+function updateBmBar(h5, trackId, markerId, lblId){
+  var marker=document.getElementById(markerId);
+  var lbl=document.getElementById(lblId);
+  if(!marker||!lbl)return;
+  var pct=h5ToPercent(h5);
+  marker.classList.remove('hidden');
+  setTimeout(function(){marker.style.left=pct+'%';},50);
+  lbl.textContent='h5='+h5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASE DE DATOS (localStorage)
+═══════════════════════════════════════════════════════════════════════ */
+function dbLoad(){
+  try{var r=localStorage.getItem(DB_KEY);return r?JSON.parse(r):[];}
+  catch(e){return [];}
+}
+function dbSave(arr){
+  try{localStorage.setItem(DB_KEY,JSON.stringify(arr));}
+  catch(e){console.warn('localStorage no disponible');}
+}
+function dbPush(record){
+  var arr=dbLoad();arr.push(record);dbSave(arr);
+}
+function dbClear(){
+  try{localStorage.removeItem(DB_KEY);}catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DATOS SIRES ANEXO C (72 sistemas)
+═══════════════════════════════════════════════════════════════════════ */
+var SIRES={
+  ibc:[
+    {id:"jcr", name:"Journal Citation Reports (JCR)",         sh:"JCR"},
+    {id:"sjr", name:"Scimago Journal Rank (SJR)",              sh:"SJR"},
+    {id:"sco", name:"Scopus",                                  sh:"Scopus"},
+    {id:"sci", name:"Science Citation Index (SCI)",            sh:"SCI"},
+    {id:"ssci",name:"Social Science Citation Index (SSCI)",    sh:"SSCI"},
+    {id:"ahci",name:"Arts & Humanities Citation Index (AHCI)", sh:"AHCI"},
+    {id:"esci",name:"Emerging Sources Citation Index (ESCI)",  sh:"ESCI"},
+    {id:"scci",name:"SciELO Citation Index",                   sh:"SciELO CI"}
+  ],
+  ib:[
+    {id:"biblat", name:"BIBLAT",          sh:"BIBLAT"},
+    {id:"redalyc",name:"Redalyc",         sh:"Redalyc"},
+    {id:"scico",  name:"SciELO Colombia", sh:"SciELO Col."},
+    {id:"dimen",  name:"Dimensions",      sh:"Dimensions"},
+    {id:"oalex",  name:"OpenAlex",        sh:"OpenAlex"},
+    {id:"lens",   name:"Lens",            sh:"Lens"}
+  ],
+  bb:[
+    {id:"cab", name:"CAB Abstracts",sh:"CAB/CABI"},{id:"dial",name:"DIALNET",sh:"Dialnet"},
+    {id:"doaj",name:"DOAJ — Directory of Open Access Journals",sh:"DOAJ"},
+    {id:"lil", name:"LILACS",sh:"LILACS"},{id:"eric",name:"ERIC",sh:"ERIC"},
+    {id:"clas",name:"Clase",sh:"Clase"},{id:"perd",name:"PERIODICA",sh:"PERIODICA"},
+    {id:"mla", name:"MLA International Bibliography",sh:"MLA"},
+    {id:"psyc",name:"PsycINFO",sh:"PsycINFO"},{id:"medl",name:"MEDLINE",sh:"MEDLINE"},
+    {id:"pub", name:"PubMed",sh:"PubMed"},{id:"emb",name:"EMBASE",sh:"EMBASE"},
+    {id:"cin", name:"CINAHL",sh:"CINAHL"},
+    {id:"gim", name:"Global Index Medicus / Index Medicus",sh:"GIM"},
+    {id:"ins", name:"INSPEC",sh:"INSPEC"},{id:"comp",name:"Compendex",sh:"Compendex"},
+    {id:"zbm", name:"zbMATH",sh:"zbMATH"},{id:"bios",name:"Biosis",sh:"Biosis"},
+    {id:"bioa",name:"Biological Abstracts",sh:"Biol. Abs."},
+    {id:"geob",name:"GEOBASE",sh:"GEOBASE"},{id:"geor",name:"GeoRef",sh:"GeoRef"},
+    {id:"ibss",name:"IBSS — Intl. Bibliography Social Sciences",sh:"IBSS"},
+    {id:"rilm",name:"RILM Abstracts of Music Literature",sh:"RILM"},
+    {id:"era", name:"Educational Research Abstracts (ERA)",sh:"ERA"},
+    {id:"eco", name:"Economic Literature Index — Econlit",sh:"Econlit"},
+    {id:"hist",name:"Historical Abstracts",sh:"Hist. Abs."},
+    {id:"soc", name:"Sociological Abstracts",sh:"Sociol. Abs."},
+    {id:"pais",name:"Pais International",sh:"PAIS Int."},
+    {id:"abi", name:"ABI/INFORM Collection",sh:"ABI/INFORM"},
+    {id:"asc", name:"Academic Search Complete",sh:"Acad. Search"},
+    {id:"fue", name:"Fuente Académica (Premier / Plus)",sh:"Fuente Acad."},
+    {id:"circ",name:"CIRC — Clasificación Integrada Rev. Científicas",sh:"CIRC"},
+    {id:"ibz", name:"IBZ — Intl. Bibliographie Geistes- und Sozialwiss.",sh:"IBZ"},
+    {id:"cui", name:"CUIDEN",sh:"CUIDEN"},
+    {id:"tris",name:"TRIS Electronic Bibliographic Data Base",sh:"TRIS"},
+    {id:"leis",name:"Leisure Tourism",sh:"Leisure Tourism"},
+    {id:"gsw", name:"GeoScienceWorld",sh:"GeoScienceWorld"},
+    {id:"cas", name:"CAS",sh:"CAS"},{id:"zoo",name:"Zoological Record",sh:"Zool. Record"},
+    {id:"ipsa",name:"Intl. Political Science Abstracts (IPSA)",sh:"IPSA"},
+    {id:"ipa", name:"Intl. Pharmaceutical Abstracts",sh:"IPA"}
+  ]
+};
+var DETECT={
+  "jcr":["journal citation reports"],"sjr":["scimago journal rank","sjr"],
+  "sco":["scopus"],"sci":["science citation index"],"ssci":["social science citation index"],
+  "ahci":["arts and humanities citation index"],"esci":["emerging sources citation index"],
+  "scci":["scielo citation index"],"biblat":["biblat"],"redalyc":["redalyc"],
+  "scico":["scielo colombia"],"dimen":["dimensions"],"oalex":["openalex"],"lens":["lens.org"],
+  "cab":["cab abstracts","cabi","global health"],"dial":["dialnet"],"doaj":["doaj"],
+  "lil":["lilacs"],"eric":["eric"],"clas":["clase"],"perd":["periodica"],
+  "mla":["mla international bibliography"],"psyc":["psycinfo"],
+  "medl":["medline"],"pub":["pubmed"],"emb":["embase"],"cin":["cinahl"],
+  "gim":["global index medicus","index medicus"],"ins":["inspec"],"comp":["compendex"],
+  "zbm":["zbmath"],"bios":["biosis"],"bioa":["biological abstracts"],"geob":["geobase"],
+  "geor":["georef"],"ibss":["ibss"],"rilm":["rilm"],"era":["educational research abstracts"],
+  "eco":["econlit"],"hist":["historical abstracts"],"soc":["sociological abstracts"],
+  "pais":["pais international"],"abi":["abi/inform"],"asc":["academic search complete"],
+  "fue":["fuente academica","fuente acad"],"circ":["clasificacion integrada"],
+  "ibz":["internationale bibliographie"],"cui":["cuiden"],"tris":["tris electronic"],
+  "leis":["leisure tourism"],"gsw":["geoscienceworld"],"cas":["chemical abstracts service"],
+  "zoo":["zoological record"],"ipsa":["political science abstracts"],"ipa":["pharmaceutical abstracts"]
+};
+var ALL=SIRES.ibc.concat(SIRES.ib,SIRES.bb);
+var SEL={};
+
+function getType(id){
+  if(SIRES.ibc.find(function(s){return s.id===id;}))return 'ibc';
+  if(SIRES.ib.find(function(s){return s.id===id;}))return 'ib';
+  return 'bb';
+}
+function getObj(id){return ALL.find(function(s){return s.id===id;});}
+
+/* ── GRIDS ── */
+function mkGrid(gid,items,type){
+  var g=document.getElementById(gid);if(!g)return;g.innerHTML='';
+  items.forEach(function(s){
+    var d=document.createElement('div');d.className='si';d.id='si-'+s.id;
+    d.innerHTML='<div class="chk">&#10003;</div><div><div>'+s.name+'</div><div class="scat">'+(type==='ibc'?'IBC':type==='ib'?'Índice Bibl.':'Base Bibl.')+'</div></div>';
+    d.addEventListener('click',function(){toggle(s.id);});g.appendChild(d);
+  });
+}
+mkGrid('g-ibc',SIRES.ibc,'ibc');
+mkGrid('g-ib',SIRES.ib,'ib');
+mkGrid('g-bb',SIRES.bb,'bb');
+
+function toggle(id){
+  var el=document.getElementById('si-'+id);if(!el)return;
+  if(SEL[id]){delete SEL[id];el.classList.remove('on');}else{SEL[id]=true;el.classList.add('on');}
+}
+function mark(id){
+  if(!SEL[id]){SEL[id]=true;var el=document.getElementById('si-'+id);if(el)el.classList.add('on');}
+}
+function clearAll(){
+  Object.keys(SEL).forEach(function(id){var el=document.getElementById('si-'+id);if(el)el.classList.remove('on');});
+  SEL={};
+}
+
+/* ── URL FETCH ── */
+function doFetch(){
+  var url=(document.getElementById('f-url').value||'').trim();
+  var btn=document.getElementById('btn-f'),ust=document.getElementById('ust'),dbox=document.getElementById('dbox');
+  if(!url){ust.textContent='Ingresa una URL válida.';ust.className='ust er';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spin">&#8635;</span> Consultando...';
+  ust.textContent='Consultando la URL...';ust.className='ust ld';dbox.classList.add('hidden');
+  fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url))
+    .then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(data){
+      var html=(data.contents||'').toLowerCase(),found=[],fibc=[];
+      Object.keys(DETECT).forEach(function(id){
+        var kws=DETECT[id];if(!kws||!kws.length)return;
+        if(kws.some(function(k){return html.indexOf(k)!==-1;})){
+          var o=getObj(id);if(o){mark(id);(getType(id)==='ibc'?fibc:found).push(o.sh);}
+        }
+      });
+      var tot=found.length+fibc.length;
+      if(tot>0){
+        ust.textContent='✓ URL accesible — '+tot+' SIRes detectados y marcados.';ust.className='ust ok';
+        dbox.classList.remove('hidden');
+        document.getElementById('dchips').innerHTML=
+          fibc.map(function(s){return '<span class="chip chipc">'+s+'</span>';}).join('')+
+          found.map(function(s){return '<span class="chip">'+s+'</span>';}).join('');
+      }else{ust.textContent='⚠ URL accesible sin SIRes reconocidos detectados. Selecciona manualmente.';ust.className='ust er';}
+    })
+    .catch(function(){ust.textContent='⚠ No fue posible leer la URL (CORS). Selecciona manualmente.';ust.className='ust er';})
+    .finally(function(){btn.disabled=false;btn.innerHTML='Verificar URL';});
+}
+
+/* ── DOM helpers ── */
+function setText(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
+function setStyle(id,p,v){var e=document.getElementById(id);if(e)e.style[p]=v;}
+function showEl(id){var e=document.getElementById(id);if(e)e.classList.remove('hidden');}
+function hideEl(id){var e=document.getElementById(id);if(e)e.classList.add('hidden');}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANALIZAR
+═══════════════════════════════════════════════════════════════════════ */
+function analizar(){
+  var ferr=document.getElementById('ferr');ferr.style.display='none';
+  var nom   =(document.getElementById('f-nom').value||'').trim()||'Sin nombre';
+  var issn  =(document.getElementById('f-issn').value||'').trim();
+  var eissn =(document.getElementById('f-eissn').value||'').trim();
+  var issnD =[issn,eissn].filter(Boolean).join(' / ')||'N/A';
+  var campoEl=document.getElementById('f-campo');
+  var campo=(campoEl&&campoEl.selectedIndex>=0&&campoEl.options[campoEl.selectedIndex].value!=='')?
+             campoEl.options[campoEl.selectedIndex].text:'— No seleccionado —';
+  var h5raw=document.getElementById('f-h5').value;
+  var h5=(h5raw!=='')?parseInt(h5raw,10):0;if(isNaN(h5))h5=0;
+  var fecha=(document.getElementById('f-fecha').value||'').trim()||'N/A';
+  var url=(document.getElementById('f-url').value||'').trim()||'—';
+
+  if(h5===0&&Object.keys(SEL).length===0){
+    ferr.textContent='Ingresa al menos el h5 o selecciona algún SIR para calcular.';ferr.style.display='block';return;
+  }
+
+  var sIBC=[],sIB=[],sBB=[];
+  Object.keys(SEL).forEach(function(id){
+    var t=getType(id);if(t==='ibc')sIBC.push(id);else if(t==='ib')sIB.push(id);else sBB.push(id);
+  });
+  var nICM=sIB.length+sBB.length;
+  var pNum=nICM===0?0:nICM===1?25:nICM===2?50:nICM===3?75:100;
+  var pStr=pNum+'%';
+
+  var now=new Date();
+  var genStr=now.toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'})+' · '+
+             now.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+  /* Categoría */
+  var catId;
+  if(sIBC.length>0)catId='IBC_DIRECTO';
+  else{
+    var sF=nICM>=4,hA=h5>=10,hM=h5>=5&&h5<10;
+    if(hA&&sF)catId='B';
+    else if((hA&&!sF)||(hM&&sF))catId='BC';
+    else if(hM&&!sF)catId='C';
+    else if(h5<5&&sF)catId='CR';
+    else catId='R';
+  }
+
+  /* ── DOM métricas ── */
+  setText('r-nom-h',nom);setText('r-nom2',nom);setText('r-issn',issnD);
+  setText('r-campo',campo);setText('r-fecha',fecha);setText('r-url',url);
+  setText('r-h5',h5);setText('r-sn',nICM);setText('r-sp',pStr);setText('r-in',sIBC.length);
+  setText('r-gen',genStr);
+  setTimeout(function(){setStyle('ibar','width',pNum+'%');setText('ibarlbl',pNum+'% (componente SIRes — 34% del ICM)');},250);
+  setText('fform','ICM = (2/3 × H5_norm [h5='+h5+']) + (1/3 × '+pStr+')');
+
+  /* ════════════════════════════════════════════════════
+     DUAL PANEL — VÍA IBC y VÍA ICM con favorabilidad
+  ════════════════════════════════════════════════════ */
+
+  /* Orden de mejor a peor: A1 > A2 > B > C > Rec. */
+  var CAT_RANK={'A1':5,'A2':4,'B':3,'C':2,'Rec.':1,'?':0};
+
+  /* — VÍA IBC — */
+  var ibcCat='?', ibcColor='#5A5850', ibcBg='#F1EFE8', ibcDetail='';
+  if(sIBC.length===0){
+    ibcDetail='La revista no está indexada en ningún IBC del Anexo C (JCR, SJR, Scopus, SCI, SSCI, AHCI, ESCI, SciELO CI) o no tiene cuartil vigente para 2024. Esta vía no aplica.';
+  } else {
+    var ibcNombres=sIBC.map(function(id){var o=getObj(id);return o?o.sh:id;}).join(', ');
+    ibcDetail='Indexada en: '+ibcNombres+'. Si tiene cuartil vigente en JCR o SJR para 2024, la categoría se asigna por Tabla 3 directa. La distribución de cuartiles debe verificarse con la institución editora o en los reportes oficiales de WoS/Scopus.';
+    /* Lógica cuartil: el usuario ya seleccionó el IBC, pero no ingresó cuartil específico.
+       Con IBC activo se muestra el rango posible y se pide al usuario ingresar el cuartil si lo conoce.
+       Para el cálculo de favorabilidad usamos "pendiente de verificación" como B (Q3 mínimo probable
+       dado que la revista está indexada), salvo que el usuario haya marcado JCR o SJR específicamente. */
+    if(sIBC.some(function(id){return id==='jcr'||id==='sjr'||id==='sco'||id==='sci'||id==='ssci';})){
+      ibcCat='B*'; ibcColor='#0F6E56'; ibcBg='#E1F5EE';
+      ibcDetail+=' Con cuartil Q3 la categoría es B; Q4 = C; Q2 = A2; Q1 = A1. El asterisco (*) indica que el cuartil exacto debe confirmarse.';
+    } else if(sIBC.some(function(id){return id==='esci';})){
+      ibcCat='ESCI'; ibcColor='#185FA5'; ibcBg='#E6F1FB';
+      ibcDetail+=' ESCI no asigna cuartil propio; la revista está en proceso de evaluación para WoS. Se clasifica por ICM.';
+    } else {
+      ibcCat='—'; ibcColor='#5A5850'; ibcBg='#F1EFE8';
+    }
+  }
+
+  /* — VÍA ICM — */
+  var icmCat, icmColor, icmBg, icmDetail, icmId;
+  var sF=nICM>=4, hA=h5>=10, hM=h5>=5&&h5<10;
+  if(hA&&sF){icmId='B';icmCat='B';icmColor='#0F6E56';icmBg='#E1F5EE';
+    icmDetail='h5 = '+h5+' (alto) + SIRes = '+pStr+' (máximo). ICM muy competitivo. Alta probabilidad de ubicarse en el quintil 0–20% del campo '+campo+'.';}
+  else if((hA&&!sF)||(hM&&sF)){icmId='BC';icmCat='B / C';icmColor='#854F0B';icmBg='#FAEEDA';
+    icmDetail='h5 = '+h5+' + SIRes = '+pStr+'. ICM moderado-alto. La categoría final (B = top 20% ó C = top 20–40%) depende de la distribución del campo '+campo+' al cierre.';}
+  else if(hM&&!sF){icmId='C';icmCat='C';icmColor='#854F0B';icmBg='#FAEEDA';
+    icmDetail='h5 = '+h5+' + SIRes = '+pStr+'. ICM moderado. Probable segundo quintil (20,1–40%) del campo '+campo+'.';}
+  else if(h5<5&&sF){icmId='CR';icmCat='C / Rec.';icmColor='#5A5850';icmBg='#F1EFE8';
+    icmDetail='h5 = '+h5+' (bajo) pero SIRes = '+pStr+' (máximo). El componente de visibilidad compensa parcialmente. Posible C si la distribución del campo es baja; Reconocida garantizada con Fases I y II.';}
+  else{icmId='R';icmCat='Rec.';icmColor='#5A5850';icmBg='#F1EFE8';
+    icmDetail='h5 = '+h5+' + SIRes = '+pStr+'. ICM probablemente por debajo del percentil 40 del campo '+campo+'. Tipología Reconocida si cumple Fases I y II.';}
+
+  /* — FAVORABILIDAD — mejor entre IBC y ICM — */
+  var ibcRank=CAT_RANK[ibcCat]||0;
+  var icmRank=(icmId==='B')?3:(icmId==='BC')?2.5:(icmId==='C')?2:(icmId==='CR')?1.5:1;
+  var ibcWins=(ibcCat!=='?'&&ibcCat!=='—'&&ibcCat!=='ESCI'&&ibcRank>=icmRank);
+
+  /* Render dual panel */
+  var dpIbc=document.getElementById('dp-ibc');
+  var dpIcm=document.getElementById('dp-icm');
+  var ibcFavBadge=document.getElementById('dp-ibc-favbadge');
+  var icmFavBadge=document.getElementById('dp-icm-favbadge');
+
+  if(dpIbc){
+    dpIbc.classList.toggle('dp-active', ibcWins);
+    dpIbc.classList.toggle('dp-inactive', !ibcWins && ibcCat==='?');
+  }
+  if(dpIcm){
+    dpIcm.classList.toggle('dp-active', !ibcWins);
+    dpIcm.classList.toggle('dp-inactive', false);
+  }
+  if(ibcFavBadge) ibcFavBadge.classList.toggle('hidden', !ibcWins);
+  if(icmFavBadge) icmFavBadge.classList.toggle('hidden', ibcWins);
+
+  var dp_ibc_cat=document.getElementById('dp-ibc-cat');
+  if(dp_ibc_cat){dp_ibc_cat.textContent=ibcCat;dp_ibc_cat.style.color=ibcColor;dp_ibc_cat.style.background=ibcBg;}
+  setText('dp-ibc-detail', ibcDetail);
+
+  var dp_icm_cat=document.getElementById('dp-icm-cat');
+  if(dp_icm_cat){dp_icm_cat.textContent=icmCat;dp_icm_cat.style.color=icmColor;dp_icm_cat.style.background=icmBg;}
+  setText('dp-icm-detail', icmDetail);
+
+  /* — Bloque resultado final por favorabilidad — */
+  var cl,cc,cb,cn,ce;
+  if(ibcWins){
+    cl=ibcCat; cc=ibcColor; cb=ibcBg;
+    cn='Categoría '+ibcCat+' — por vía IBC (favorabilidad)';
+    ce='La clasificación por cuartil IBC resulta más favorable que la vía ICM. Con cuartil vigente en JCR o SJR para 2024, la categoría se asigna directamente por Tabla 3 sin calcular el ICM. El principio de favorabilidad reconoce el mejor resultado entre las dos vías disponibles.';
+  } else if(icmId==='B'){
+    cl='B';cc='#0F6E56';cb='#E1F5EE';
+    cn='Categoría B — vía ICM (quintil 0–20% del campo)';
+    ce='Con h5 = '+h5+' y '+nICM+' SIRes ('+pStr+'), el ICM posiciona a la revista con alta probabilidad en el quintil superior del campo '+campo+'. La categoría B es el mejor resultado alcanzable por vía ICM.';
+  } else if(icmId==='BC'){
+    cl='B/C';cc='#854F0B';cb='#FAEEDA';
+    cn='Categoría B o C — vía ICM, depende del quintil final';
+    ce='Con h5 = '+h5+' y '+nICM+' SIRes ('+pStr+'), la categoría final depende de la distribución del campo '+campo+' al cierre de inscripciones. Si queda en el quintil 0–20% obtiene B; en el 20,1–40% obtiene C.';
+  } else if(icmId==='C'){
+    cl='C';cc='#854F0B';cb='#FAEEDA';
+    cn='Categoría C — vía ICM (quintil 20,1–40% del campo)';
+    ce='Con h5 = '+h5+' y '+nICM+' SIRes ('+pStr+'), la revista probablemente queda en el segundo quintil del campo '+campo+'. Categoría C es el resultado más probable.';
+  } else if(icmId==='CR'){
+    cl='C / Rec.';cc='#5A5850';cb='#F1EFE8';
+    cn='Categoría C o Tipología Reconocida — vía ICM';
+    ce='h5 = '+h5+' es bajo, pero con '+nICM+' SIRes el componente de visibilidad está al máximo ('+pStr+'). Posible C si la distribución del campo favorece. Reconocida garantizada si cumple Fases I y II.';
+  } else {
+    cl='Rec.';cc='#5A5850';cb='#F1EFE8';
+    cn='Tipología Reconocida — vía ICM';
+    ce='Con h5 = '+h5+' y '+nICM+' SIRes ('+pStr+'), el ICM probablemente queda por debajo del percentil 40 del campo '+campo+'. Si cumple Fases I y II, obtiene la tipología Reconocida.';
+  }
+
+  var cblock=document.getElementById('cblock');if(cblock){cblock.style.background=cb;cblock.style.borderColor=cc+'80';}
+  var clEl=document.getElementById('cltr');if(clEl){clEl.textContent=cl;clEl.style.color=cc;}
+  var cnEl=document.getElementById('cnom');if(cnEl){cnEl.textContent=cn;cnEl.style.color=cc;}
+  var ceEl=document.getElementById('cexp');if(ceEl){ceEl.textContent=ce;ceEl.style.color='#1E1E1C';}
+
+  /* ── Tabla factores ── */
+  var db2=document.getElementById('diag-body');
+  if(db2){
+    db2.innerHTML='';
+    var rows=[
+      {f:'Índice H5 (PoP)',v:'h5 = '+h5,
+       i:h5>=10?'<span class="ftag tag-ok">ALTO favorable</span>':h5>=5?'<span class="ftag tag-mid">MODERADO</span>':h5>0?'<span class="ftag tag-hi">BAJO</span>':'<span class="ftag tag-hi">CERO</span>',
+       o:h5>=10?'Competitivo. Representa el 66% del ICM y posiciona en quintiles superiores si los SIRes también son fuertes.':h5>=5?'Moderado. El resultado (B o C) dependerá de la distribución del campo. El componente SIRes puede compensar parcialmente.':h5>0?'h5 = '+h5+' es bajo. Revisar cadena de búsqueda en PoP. Si es correcto, la visibilidad en SIRes cobra mayor importancia.':'h5 = 0: verificar búsqueda en PoP (source:"nombre" "ISSN") o la revista tiene baja citación real 2020-2024.'},
+      {f:'SIRes válidos (ICM)',v:nICM+' SIRes → '+pStr,
+       i:nICM>=4?'<span class="ftag tag-ok">MÁXIMO (100%)</span>':nICM>=2?'<span class="ftag tag-mid">PARCIAL ('+pStr+')</span>':nICM===1?'<span class="ftag tag-hi">MÍNIMO (25%)</span>':'<span class="ftag tag-hi">NINGUNO</span>',
+       o:nICM>=4?'El componente de visibilidad (34% del ICM) está al máximo. Con ≥4 SIRes válidos se alcanza el techo del indicador.':'Con '+nICM+' SIRes el componente es del '+pStr+'. Para el 100% se requieren 4 o más SIRes de tipo base/índice del Anexo C.'},
+      {f:'IBC reconocidos',v:sIBC.length>0?sIBC.map(function(id){var o=getObj(id);return o?o.sh:id;}).join(', '):'Ninguno',
+       i:sIBC.length>0?'<span class="ftag tag-info">CLASIF. DIRECTA</span>':'<span class="ftag tag-ok">Ruta ICM</span>',
+       o:sIBC.length>0?'Figura en '+sIBC.length+' IBC. Si tiene cuartil vigente en JCR o SJR para 2024, la categoría se determina por Tabla 3 directa sin usar el ICM. El cuartil exacto debe verificarse con la institución editora o en los reportes oficiales de la convocatoria.':'No está en ningún IBC reconocido o no tiene cuartil activo para 2024. La revista clasifica exclusivamente por la ruta ICM.'},
+      {f:'Campo Minciencias',v:campo,i:'<span class="ftag tag-info">RELATIVO</span>',
+       o:'La categoría se determina por quintiles dentro del campo '+campo+'. El ICM se compara con todas las revistas participantes del mismo campo al cierre. La distribución solo se conoce al cierre de inscripciones.'},
+      {f:'Componente SIRes',v:'Peso: 34% del ICM',
+       i:pNum>=100?'<span class="ftag tag-ok">SATURADO</span>':pNum>=50?'<span class="ftag tag-mid">PARCIAL</span>':'<span class="ftag tag-hi">BAJO</span>',
+       o:'Escala: 1 SIR=25%, 2=50%, 3=75%, 4+=100%. Nota: Latindex, REDIB, ERIHPLUS, ProQuest, EZB, MIAR no figuran en el Anexo C 2026.'},
+      {f:'Componente H5',v:'Peso: 66% del ICM',i:'<span class="ftag tag-hi">DETERMINANTE</span>',
+       o:'El H5 es el factor más determinante (2/3 del ICM). Se normaliza sobre la distribución del campo. Se calcula con Publish or Perish sobre Google Scholar, ventana 2020-2024.'}
+    ];
+    rows.forEach(function(r,i){
+      var tr=document.createElement('tr');if(i%2===1)tr.style.background='var(--gb)';
+      tr.innerHTML='<td style="font-weight:600">'+r.f+'</td><td style="font-family:\'DM Mono\',monospace;white-space:nowrap">'+r.v+'</td><td style="white-space:nowrap">'+r.i+'</td><td>'+r.o+'</td>';
+      db2.appendChild(tr);
+    });
+  }
+
+  /* ── Tabla SIRes ── */
+  var stb=document.getElementById('stbody');
+  if(stb){
+    var allSel=sIBC.concat(sIB,sBB);
+    if(!allSel.length){stb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gt);padding:1rem;font-style:italic">Ningún SIR seleccionado</td></tr>';}
+    else{
+      stb.innerHTML='';
+      allSel.forEach(function(id,i){
+        var o=getObj(id),t=getType(id);
+        var tl=t==='ibc'?'Índice Bibl. de Citaciones':t==='ib'?'Índice Bibliográfico':'Base Bibl. c/ Comité';
+        var est=t==='ibc'?'<span class="pill pibc">IBC — clasif. directa</span>':'<span class="pill pok">Válido ICM</span>';
+        var tr=document.createElement('tr');if(i%2===1)tr.style.background='var(--gb)';
+        tr.innerHTML='<td style="font-family:\'DM Mono\',monospace;color:var(--gt)">'+(i+1)+'</td><td>'+(o?o.name:id)+'</td><td style="color:var(--gt);font-size:.79rem">'+tl+'</td><td>'+est+'</td>';
+        stb.appendChild(tr);
+      });
+    }
+  }
+
+  /* ── Advertencias ── */
+  var warns=document.getElementById('warns');
+  if(warns){
+    warns.innerHTML='';
+    if(nICM>0&&nICM<4&&!sIBC.length)
+      warns.innerHTML+='<div class="wbox"><strong>⚠ SIRes insuficientes para máximo ICM</strong>Con '+nICM+' SIRes el componente es '+pStr+'. Para el 100% se necesitan 4 o más SIRes del Anexo C. Revisar si la revista puede acreditar: Redalyc, SciELO Colombia, Dimensions, OpenAlex, ERA, ERIC u otros del listado.</div>';
+    if(h5===0)
+      warns.innerHTML+='<div class="wbox"><strong>⚠ H5 igual a cero</strong>Revisar la cadena de búsqueda en PoP: source:"nombre completo" "ISSN" con ventana 2020-2024 en Google Scholar. Un h5 = 0 puede ser error de búsqueda o baja citación real.</div>';
+    else if(h5<4)
+      warns.innerHTML+='<div class="wbox"><strong>⚠ H5 muy bajo (h5 = '+h5+')</strong>El H5 representa el 66% del ICM. Con h5 = '+h5+' es difícil alcanzar los quintiles superiores. Priorizar visibilidad: acceso abierto, DOI, presencia en OpenAlex/Dimensions, promoción de citación.</div>';
+    if(!sIBC.length&&!nICM)
+      warns.innerHTML+='<div class="wbox"><strong>⚠ Sin SIRes válidos</strong>El componente de visibilidad del ICM será 0%. Sin cuartil IBC vigente, la clasificación en Fase III no es posible.</div>';
+  }
+
+  /* ── Conclusión ── */
+  var concl=document.getElementById('concl-text');
+  if(concl){
+    var txt='La revista '+nom+' ha sido evaluada por las dos vías de clasificación definidas en la Tabla 3 del modelo Publindex 2026. ';
+    if(ibcWins){
+      txt+='Aplicando el principio de favorabilidad, la clasificación por vía IBC (cuartil JCR/SJR) resulta más favorable que la vía ICM. La categoría resultante es '+ibcCat+', sujeta a confirmación del cuartil vigente para 2024. ';
+    } else {
+      txt+='La revista no tiene cuartil IBC activo verificado para 2024 o la vía ICM es más favorable. Clasifica por la ruta ICM: con h5 = '+h5+' y '+nICM+' SIRes válidos ('+pStr+' del componente de visibilidad), ';
+      if(icmId==='B')txt+='el diagnóstico es favorable hacia la categoría B (quintil 0–20% del '+campo+').';
+      else if(icmId==='BC')txt+='la categoría más probable es B o C según la distribución final del '+campo+'.';
+      else if(icmId==='C')txt+='el resultado más probable es la categoría C (quintil 20,1–40% del '+campo+').';
+      else if(icmId==='CR')txt+='el resultado probable es C o Reconocida según la distribución del '+campo+'.';
+      else txt+='el ICM probablemente queda fuera de los quintiles superiores del '+campo+', resultando en la tipología Reconocida.';
+      txt+=' ';
+    }
+    txt+='En cualquier escenario, la tipología Reconocida está garantizada si la revista cumple satisfactoriamente las Fases I y II de la convocatoria.';
+    concl.textContent=txt;
+  }
+
+  /* ══════════════════════════════════════════════════
+     GUARDAR EN BASE DE DATOS
+  ══════════════════════════════════════════════════ */
+  var record={
+    id: now.getTime(),
+    fecha: now.toISOString(),
+    fecha_display: genStr,
+    revista: nom,
+    issn: issnD,
+    campo: campo,
+    h5: h5,
+    fecha_pop: fecha,
+    sires_icm: nICM,
+    puntaje_sires: pStr,
+    ibc_n: sIBC.length,
+    ibc_lista: sIBC.map(function(id){var o=getObj(id);return o?o.sh:id;}).join('; '),
+    sir_lista: Object.keys(SEL).map(function(id){var o=getObj(id);return o?o.sh:id;}).join('; '),
+    cat_ibc: ibcCat,
+    cat_icm: icmCat,
+    favorabilidad: ibcWins?'IBC':'ICM',
+    categoria_final: cl,
+    url_indexacion: url,
+    version: 'v5'
+  };
+  dbPush(record);
+  enviarASheets(record);   // envío paralelo a Google Sheets (silencioso si no configurado)
+
+  hideEl('FS');showEl('RS');window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── RESET ── */
+function resetApp(){
+  clearAll();
+  document.getElementById('ust').textContent='';document.getElementById('ust').className='ust';
+  hideEl('dbox');
+  var ferr=document.getElementById('ferr');if(ferr)ferr.style.display='none';
+  setStyle('ibar','width','0%');
+  showEl('FS');hideEl('RS');window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODERADOR
+═══════════════════════════════════════════════════════════════════════ */
+function openMod(){
+  document.getElementById('mod-pass').value='';
+  document.getElementById('mod-err').textContent='';
+  hideEl('mod-dash');showEl('mod-login');
+  showEl('mod-overlay');
+  setTimeout(function(){document.getElementById('mod-pass').focus();},100);
+}
+function closeMod(){hideEl('mod-overlay');}
+
+function checkPass(){
+  var pass=document.getElementById('mod-pass').value;
+  var errEl=document.getElementById('mod-err');
+  if(pass===MOD_PASS){
+    errEl.textContent='';
+    hideEl('mod-login');showEl('mod-dash');
+    refreshDash();
+  }else{
+    errEl.textContent='Contraseña incorrecta. Inténtalo de nuevo.';
+    document.getElementById('mod-pass').value='';
+    document.getElementById('mod-pass').focus();
+  }
+}
+
+function refreshDash(){
+  var data=dbLoad();
+  var tbody=document.getElementById('db-tbody');
+  var h5vals=data.filter(function(r){return typeof r.h5==='number';}).map(function(r){return r.h5;});
+  var h5avg=h5vals.length?Math.round(h5vals.reduce(function(a,b){return a+b;},0)/h5vals.length):0;
+  var revistas={};data.forEach(function(r){if(r.revista&&r.revista!=='Sin nombre')revistas[r.revista]=1;});
+  var ultima=data.length?data[data.length-1].fecha_display:'—';
+
+  setText('ds-total',data.length);
+  setText('ds-revistas',Object.keys(revistas).length);
+  setText('ds-h5avg',h5vals.length?h5avg:'—');
+  setText('ds-ultima',ultima);
+
+  if(!tbody)return;
+  if(!data.length){tbody.innerHTML='<tr><td colspan="11" class="empty-db">No hay consultas registradas aún.</td></tr>';return;}
+
+  tbody.innerHTML='';
+  data.slice().reverse().forEach(function(r,i){
+    var catClass='cat-R';
+    if(r.categoria_final==='A1'||r.categoria_final==='A2')catClass='cat-A1';
+    else if(r.categoria_final==='B'||r.categoria_final==='B*')catClass='cat-B';
+    else if(r.categoria_final==='B/C')catClass='cat-B';
+    else if(r.categoria_final==='C'||r.categoria_final==='C/R'||r.categoria_final==='C / Rec.')catClass='cat-C';
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td style="font-family:\'DM Mono\',monospace;color:var(--gt)">'+(data.length-i)+'</td>'+
+      '<td style="white-space:nowrap;font-size:.75rem">'+esc(r.fecha_display||'')+'</td>'+
+      '<td style="font-weight:600;max-width:160px">'+esc(r.revista||'')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;font-size:.75rem">'+esc(r.issn||'')+'</td>'+
+      '<td style="font-size:.75rem">'+esc(r.campo||'')+'</td>'+
+      '<td style="font-family:\'DM Mono\',monospace;text-align:center;font-weight:600">'+esc(String(r.h5||0))+'</td>'+
+      '<td style="text-align:center">'+esc(String(r.sires_icm||0))+'</td>'+
+      '<td style="text-align:center">'+esc(r.puntaje_sires||'0%')+'</td>'+
+      '<td style="text-align:center"><span class="cat-pill '+(r.cat_ibc&&r.cat_ibc!=='?'?'cat-IBC':'cat-REC')+'">'+esc(r.cat_ibc||'—')+'</span></td>'+
+      '<td style="text-align:center"><span class="cat-pill cat-C">'+esc(r.cat_icm||'—')+'</span></td>'+
+      '<td style="text-align:center;font-size:.75rem;font-weight:600">'+esc(r.favorabilidad||'ICM')+'</td>'+
+      '<td style="text-align:center"><span class="cat-pill '+catClass+'">'+esc(r.categoria_final||'—')+'</span></td>'+
+      '<td style="font-size:.72rem;max-width:160px;word-break:break-all"><a href="'+esc(r.url_indexacion||'')+'" target="_blank" rel="noopener" style="color:var(--az)">'+esc(r.url_indexacion||'—')+'</a></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV(){
+  var data=dbLoad();if(!data.length){alert('No hay datos registrados.');return;}
+  var cols=['id','fecha','fecha_display','revista','issn','campo','h5','fecha_pop','sires_icm','puntaje_sires','ibc_n','ibc_lista','sir_lista','cat_ibc','cat_icm','favorabilidad','categoria_final','url_indexacion','version'];
+  var headers=['ID','Fecha ISO','Fecha legible','Revista','ISSN / e-ISSN','Campo Minciencias','H5','Fecha consulta PoP','SIRes ICM','Puntaje SIRes','IBC (n)','IBC lista','SIRes lista','Cat. IBC','Cat. ICM','Favorabilidad','Categoría final','URL indexación','Versión'];
+  var rows=[headers.join(',')];
+  data.forEach(function(r){
+    rows.push(cols.map(function(c){
+      var val=r[c]!==undefined?String(r[c]):'';
+      return '"'+val.replace(/"/g,'""')+'"';
+    }).join(','));
+  });
+  var csv='\uFEFF'+rows.join('\r\n');
+  dlFile(csv,'publindex2026_consultas_'+fmtDate()+'.csv','text/csv;charset=utf-8;');
+}
+
+/* ── EXPORT JSON ── */
+function exportJSON(){
+  var data=dbLoad();if(!data.length){alert('No hay datos registrados.');return;}
+  var json=JSON.stringify({
+    exportado: new Date().toISOString(),
+    version_app: 'v3.0',
+    convocatoria: 'Publindex 977 de 2026',
+    total_registros: data.length,
+    consultas: data
+  },null,2);
+  dlFile(json,'publindex2026_consultas_'+fmtDate()+'.json','application/json');
+}
+
+function fmtDate(){
+  var d=new Date();
+  return d.getFullYear()+''+String(d.getMonth()+1).padStart(2,'0')+''+String(d.getDate()).padStart(2,'0');
+}
+
+function dlFile(content,filename,mime){
+  var blob=new Blob([content],{type:mime});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=filename;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},500);
+}
+
+/* ── CLEAR DB ── */
+function clearDB(){
+  if(!confirm('¿Eliminar TODOS los registros de la base de datos? Esta acción no se puede deshacer.'))return;
+  dbClear();refreshDash();
+}
+
+/* Close overlay on click outside box */
+document.getElementById('mod-overlay').addEventListener('click',function(e){if(e.target===this)closeMod();});
+</script>
+</body>
+</html>
